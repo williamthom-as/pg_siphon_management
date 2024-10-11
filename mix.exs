@@ -58,7 +58,9 @@ defmodule PgSiphonManagement.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:dart_sass, "~> 0.7", runtime: Mix.env() == :dev},
+      {:pg_siphon, path: "../pg_siphon"}
     ]
   end
 
@@ -75,10 +77,15 @@ defmodule PgSiphonManagement.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind pg_siphon_management", "esbuild pg_siphon_management"],
+      "assets.build": [
+        "esbuild pg_siphon_management",
+        "sass pg_siphon_management",
+        "tailwind pg_siphon_management",
+      ],
       "assets.deploy": [
-        "tailwind pg_siphon_management --minify",
         "esbuild pg_siphon_management --minify",
+        "sass pg_siphon_management",
+        "tailwind pg_siphon_management --minify",
         "phx.digest"
       ]
     ]

@@ -23,7 +23,8 @@ config :pg_siphon_management, PgSiphonManagementWeb.Endpoint,
   secret_key_base: "qFoVGQ+uwH5WqkLArD/YBPEuzs19X7uisfJ5kSFTRzNaaMw1rr9ewes1P+kTb2IP",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:pg_siphon_management, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:pg_siphon_management, ~w(--watch)]}
+    tailwind: {Tailwind, :install_and_run, [:pg_siphon_management, ~w(--watch)]},
+    sass: {DartSass, :install_and_run, [:pg_siphon_management, ~w(--watch)]}
   ]
 
 # ## SSL Support

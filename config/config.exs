@@ -47,8 +47,17 @@ config :tailwind,
   pg_siphon_management: [
     args: ~w(
       --config=tailwind.config.js
-      --input=css/app.css
+      --input=../priv/static/assets/app.css.tailwind
       --output=../priv/static/assets/app.css
+    ),
+    cd: Path.expand("../assets", __DIR__)
+  ]
+
+config :dart_sass,
+  version: "1.77.8",
+  pg_siphon_management: [
+    args: ~w(
+      css/app.scss ../priv/static/assets/app.css.tailwind
     ),
     cd: Path.expand("../assets", __DIR__)
   ]
