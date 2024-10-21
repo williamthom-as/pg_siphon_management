@@ -21,12 +21,12 @@ defmodule PgSiphonManagementWeb.StatusLive do
 
   def render(assigns) do
     ~H"""
-    <div class="max-w-8xl mx-auto mt-10">
+    <div class="max-w-8xl mx-auto">
       <div class="bg-gray-800 rounded-t-lg px-4 py-2 flex items-center justify-between">
         <div class="flex space-x-2">
-          <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+          <%!-- <span class="w-3 h-3 bg-red-500 rounded-full"></span>
           <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
-          <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+          <span class="w-3 h-3 bg-green-500 rounded-full"></span> --%>
         </div>
         <span class="text-gray-400 text-sm">Logging: All [<%= @counter %>]</span>
       </div>

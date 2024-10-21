@@ -1,0 +1,28 @@
+@keyframes subtle-flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+.flash {
+  animation: subtle-flash 2s infinite;
+}
+
+@keyframes lighthouse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+.lighthouse {
+  animation: lighthouse 2s infinite ease-in-out;
+}

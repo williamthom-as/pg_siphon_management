@@ -85,6 +85,7 @@ defmodule PgSiphonManagementWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import PgSiphonManagementWeb.CoreComponents
+      import PgSiphonManagementWeb.LayoutComponents
       import PgSiphonManagementWeb.Gettext
 
       # Shortcut for generating JS commands
