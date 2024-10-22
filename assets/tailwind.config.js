@@ -11,11 +11,17 @@ module.exports = {
     "../lib/pg_siphon_management_web.ex",
     "../lib/pg_siphon_management_web/**/*.*ex"
   ],
-  theme: {
+  safelist: [
+    {
+      pattern: /bg-(red|green|blue|yellow|purple|pink|indigo|gray|black|white|teal|orange|amber|lime|emerald|cyan|sky|violet|fuchsia|rose)-500/,
+    },
+  ],
+theme: {
     extend: {
       colors: {
-        brand: "#FD4F00",
-      }
+        gray: require('tailwindcss/colors').trueGray,
+        'gray-850': '#2d3748',
+      },
     },
   },
   plugins: [

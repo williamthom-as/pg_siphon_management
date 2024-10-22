@@ -21,32 +21,46 @@ defmodule PgSiphonManagementWeb.StatusLive do
 
   def render(assigns) do
     ~H"""
-    <div class="max-w-8xl mx-auto">
-      <div class="bg-gray-800 rounded-t-lg px-4 py-2 flex items-center justify-between">
-        <div class="flex space-x-2">
-          <%!-- <span class="w-3 h-3 bg-red-500 rounded-full"></span>
-          <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
-          <span class="w-3 h-3 bg-green-500 rounded-full"></span> --%>
+    <.two_columns>
+      <:left_section>
+        <.accordion_container id="accordion-status-page">
+          <.accordion_entry title="Proxy Settings">
+            <input
+              type="text"
+              class="bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              placeholder="Enter text here"
+            />
+          </.accordion_entry>
+          <.accordion_entry title="Recording">
+            Here 2!
+          </.accordion_entry>
+        </.accordion_container>
+      </:left_section>
+      <:right_section>
+        <div class="mx-auto">
+          <div class="bg-gray-800 rounded-t-lg px-4 py-2 flex items-center justify-between">
+            <div class="flex space-x-2"></div>
+            <span class="text-gray-400 text-xs font-mono">Logging: All [<%= @counter %>]</span>
+          </div>
+          <div
+            id="messages-window"
+            phx-update="stream"
+            class="bg-black text-white p-4 rounded-b-lg h-96 overflow-y-auto font-mono text-xs"
+            phx-hook="ScrollToBottom"
+          >
+            <div :for={{id, message} <- @streams.messages} id={id} class="mb-2">
+              <p>
+                <span class="text-blue-400">
+                  [<%= message.time %>]
+                </span>
+                <span class="text-green-400">[<%= message.message.type %>]</span>
+                <%= message.message.payload %>
+              </p>
+            </div>
+          </div>
         </div>
-        <span class="text-gray-400 text-sm">Logging: All [<%= @counter %>]</span>
-      </div>
-      <div
-        id="messages-window"
-        phx-update="stream"
-        class="bg-black text-white p-4 rounded-b-lg h-96 overflow-y-auto font-mono text-xs"
-        phx-hook="ScrollToBottom"
-      >
-        <div :for={{id, message} <- @streams.messages} id={id} class="mb-2">
-          <p>
-            <span class="text-blue-400">
-              [<%= message.time %>]
-            </span>
-            <span class="text-green-400">[<%= message.message.type %>]</span>
-            <%= message.message.payload %>
-          </p>
-        </div>
-      </div>
-    </div>
+      </:right_section>
+    </.two_columns>
     """
   end
 

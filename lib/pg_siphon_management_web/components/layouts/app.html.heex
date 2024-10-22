@@ -1,37 +1,32 @@
 <div class="flex h-screen">
-  <!-- Sidebar -->
-  <div class="w-10 bg-gray-800 text-white flex flex-col items-center">
-    <div class="p-2 pt-4 text-center text-xs font-mono [writing-mode:vertical-lr]">PgSiphon</div>
-    <nav class="flex-1 px-4 py-4 space-y-2">
+  <.sidebar>
+    <:nav_links>
       <.nav_link href={~p"/"} tooltip="Home">
         <Heroicons.icon name="home" type="mini" class="h-4 w-4" />
       </.nav_link>
       <.nav_link href={~p"/status"} tooltip="Live">
         <Heroicons.icon name="bars-4" type="mini" class="h-4 w-4" />
       </.nav_link>
-    </nav>
-    <div class="flex-3 px-4 py-4 space-y-2"></div>
-  </div>
+      <.nav_link href={~p"/status"} tooltip="Settings">
+        <Heroicons.icon name="cog-6-tooth" type="mini" class="h-4 w-4" />
+      </.nav_link>
+    </:nav_links>
+    <:bottom_links></:bottom_links>
+  </.sidebar>
   <!-- Main Content -->
   <div class="flex-1 flex flex-col">
-    <!-- Top Bar -->
-    <div class="w-full h-8 bg-gray-300 text-gray-800 flex">
-      <div class="flex-1 flex items-center justify-start">
-        <div class="pl-4 p-2 text-center text-xs font-mono"></div>
-      </div>
-      <div class="flex-1 flex items-center justify-center">
-        <div class="p-2 text-center text-xs font-mono"></div>
-      </div>
-      <div class="flex-1 flex items-center justify-end">
-        <div class="pr-4 p-2 text-center text-xs font-mono">
-          <div class="flex space-x-2">
-            <span class="w-3 h-3 bg-green-500 rounded-full lighthouse"></span>
-            <span class="font-mono">OK</span>
-          </div>
+    <.topbar>
+      <:left_slot></:left_slot>
+      <:center_slot></:center_slot>
+      <:right_slot>
+        <div>
+          <.badge colour="blue">
+            <span class="font-mono">Connected</span>
+          </.badge>
         </div>
-      </div>
-    </div>
-    <div class="flex-1 p-4">
+      </:right_slot>
+    </.topbar>
+    <div class="flex-1">
       <.flash_group flash={@flash} />
       <%= @inner_content %>
     </div>
