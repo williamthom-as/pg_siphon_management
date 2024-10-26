@@ -47,4 +47,37 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
     </span>
     """
   end
+
+  @doc """
+  Displays an alert bar.
+
+  ## Examples
+      <.alert_bar type="success">This is a success message.</.alert_bar>
+      <.alert_bar type="danger">This is a danger message.</.alert_bar>
+      <.alert_bar type="primary">This is a primary message.</.alert_bar>
+  """
+  attr :type, :string,
+    required: true,
+    doc: "the type of the alert, can be success, danger, primary"
+
+  attr :title, :string, default: ""
+  slot :inner_block, required: true
+
+  def alert_bar(assigns) do
+    ~H"""
+    <div class={alert_class(@type)}>
+      <div class="flex justify-between items-center">
+        <%= if @title != "" do %>
+          <div class="font-semibold"><%= @title %></div>
+        <% end %>
+        <div class="ml-2 text-xs"><%= render_slot(@inner_block) %></div>
+      </div>
+    </div>
+    """
+  end
+
+  defp alert_class("success"), do: "bg-green-500 text-white p-4 rounded-lg shadow-md mb-4"
+  defp alert_class("danger"), do: "bg-red-500 text-white p-4 rounded-lg shadow-md mb-4"
+  defp alert_class("primary"), do: "bg-blue-500 text-white p-4 rounded-lg shadow-md mb-4"
+  defp alert_class(_), do: "bg-gray-500 text-white p-4 rounded-lg shadow-md mb-4"
 end

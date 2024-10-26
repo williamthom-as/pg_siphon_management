@@ -19,7 +19,7 @@ module.exports = {
 theme: {
     extend: {
       colors: {
-        gray: require('tailwindcss/colors').trueGray,
+        gray: require('tailwindcss/colors').neutral,
         'gray-850': '#2d3748',
       },
     },

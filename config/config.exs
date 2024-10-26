@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+require Logger
+
 config :pg_siphon_management,
   ecto_repos: [PgSiphonManagement.Repo],
   generators: [timestamp_type: :utc_datetime]
@@ -70,6 +72,18 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Proxy server configuration
+config :pg_siphon, :proxy_server,
+  from_port: 1337,
+  to_host: ~c"localhost",
+  to_port: 5432
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
+
+if File.exists?("/etc/pg_siphon/config.exs") do
+  IO.puts("Loading external config ...")
+
+  import_config "/etc/pg_siphon/config.exs"
+end

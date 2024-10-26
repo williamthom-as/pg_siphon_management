@@ -32,3 +32,8 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+config :pg_siphon, :proxy_server,
+  from_port: 1338,
+  to_host: ~c"localhost",
+  to_port: 5432

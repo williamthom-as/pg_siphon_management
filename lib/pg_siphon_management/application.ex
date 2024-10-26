@@ -11,16 +11,17 @@ defmodule PgSiphonManagement.Application do
       PgSiphonManagementWeb.Telemetry,
       PgSiphonManagement.Repo,
       {Ecto.Migrator,
-        repos: Application.fetch_env!(:pg_siphon_management, :ecto_repos),
-        skip: skip_migrations?()},
-      {DNSCluster, query: Application.get_env(:pg_siphon_management, :dns_cluster_query) || :ignore},
+       repos: Application.fetch_env!(:pg_siphon_management, :ecto_repos), skip: skip_migrations?()},
+      {DNSCluster,
+       query: Application.get_env(:pg_siphon_management, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PgSiphonManagement.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: PgSiphonManagement.Finch},
       # Start a worker by calling: PgSiphonManagement.Worker.start_link(arg)
       # {PgSiphonManagement.Worker, arg},
       # Start to serve requests, typically the last entry
-      PgSiphonManagementWeb.Endpoint
+      PgSiphonManagementWeb.Endpoint,
+      PgSiphonManagement.Persistence.FileExporterService
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

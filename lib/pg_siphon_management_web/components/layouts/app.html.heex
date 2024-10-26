@@ -1,14 +1,11 @@
 <div class="flex h-screen">
   <.sidebar>
     <:nav_links>
-      <.nav_link href={~p"/"} tooltip="Home">
-        <Heroicons.icon name="home" type="mini" class="h-4 w-4" />
+      <.nav_link href={~p"/status"} tooltip="Proxy">
+        <Heroicons.icon name="server-stack" type="outline" class="h-4 w-4" />
       </.nav_link>
-      <.nav_link href={~p"/status"} tooltip="Live">
-        <Heroicons.icon name="bars-4" type="mini" class="h-4 w-4" />
-      </.nav_link>
-      <.nav_link href={~p"/status"} tooltip="Settings">
-        <Heroicons.icon name="cog-6-tooth" type="mini" class="h-4 w-4" />
+      <.nav_link href={~p"/status"} tooltip="Analytics">
+        <Heroicons.icon name="presentation-chart-line" type="outline" class="h-4 w-4" />
       </.nav_link>
     </:nav_links>
     <:bottom_links></:bottom_links>
@@ -16,7 +13,15 @@
   <!-- Main Content -->
   <div class="flex-1 flex flex-col">
     <.topbar>
-      <:left_slot></:left_slot>
+      <:left_slot>
+        <span class="text-gray-600 text-xs font-mono">
+          / home
+        </span>
+        <span class="text-gray-600 text-xs font-mono"> / </span>
+        <span class="text-gray-300 text-xs font-mono">
+          management
+        </span>
+      </:left_slot>
       <:center_slot></:center_slot>
       <:right_slot>
         <div>

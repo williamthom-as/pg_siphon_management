@@ -95,10 +95,10 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
   def two_columns(assigns) do
     ~H"""
     <div class="flex flex-col md:flex-row h-full">
-      <div class="w-full md:w-1/3 md:max-w-lg bg-gray-900 text-gray-200 p-2">
+      <div class="w-full md:w-1/3 md:max-w-lg bg-gray-900 text-gray-200 p-3">
         <%= render_slot(@left_section) %>
       </div>
-      <div class="w-full md:w-2/3 bg-gray-700 p-4 flex-grow">
+      <div class="w-full md:w-2/3 bg-gray-900/70 p-3 flex-grow">
         <%= render_slot(@right_section) %>
       </div>
     </div>
@@ -137,13 +137,19 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
   </.accordion_entry>
   """
   attr :title, :string, required: true
+  attr :open, :boolean, default: false
   slot :inner_block, default: ""
 
   def accordion_entry(assigns) do
     ~H"""
     <div class="border border-gray-700 mb-2">
       <button class="accordion-header w-full text-left p-2 bg-gray-800 text-gray-200 hover:bg-gray-700 font-mono text-xs flex justify-between items-center">
-        <span><%= @title %></span>
+        <div class="flex items-center">
+          <Heroicons.icon name="ellipsis-vertical" type="mini" class="h-3 w-3" />
+          <span class="ml-2">
+            <%= @title %>
+          </span>
+        </div>
         <svg
           class="chevron w-4 h-4 transition-transform duration-300 ease-out"
           fill="none"
@@ -155,11 +161,64 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
           </path>
         </svg>
       </button>
-      <div class="accordion-content bg-gray-900 text-gray-300 font-mono text-sm">
+      <div class={"accordion-content bg-gray-900 text-gray-300 font-mono text-sm #{if @open, do: "open", else: ""}"}>
         <div class="p-2">
           <%= render_slot(@inner_block) %>
         </div>
       </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a key-value pair row.
+
+  ## Example
+
+  <.kvp_container title="Proxy Settings">
+    <.kvp_entry>
+      <:key>Host Addr:</:key>
+      <:value><%= @proxy_config.to_host %></:value>
+    </.kvp_entry>
+    <.kvp_entry>
+      <:key>Host Port:</:key>
+      <:value><%= @proxy_config.to_port %></:value>
+    </.kvp_entry>
+  </.kvp_container>
+  """
+
+  attr :title, :string, required: true
+  attr :tooltip, :string, default: ""
+  slot :inner_block, required: true
+
+  def kvp_container(assigns) do
+    ~H"""
+    <div class="bg-gray-900 p-2 shadow-md mb-2">
+      <h3 class="text-gray-300 text-sm mb-2" title={@tooltip}><%= @title %></h3>
+      <%= render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a key-value pair entry.
+
+  ## Example
+
+  <.kvp_entry>
+    <:key>Host Addr:</key>
+    <:value>localhost</value>
+  </.kvp_entry>
+  """
+
+  slot :key, required: true
+  slot :value, required: true
+
+  def kvp_entry(assigns) do
+    ~H"""
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-gray-400 text-xs"><%= render_slot(@key) %></span>
+      <span class="text-gray-300"><%= render_slot(@value) %></span>
     </div>
     """
   end
