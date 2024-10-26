@@ -1,0 +1,13 @@
+.accordion-content {
+  @apply overflow-hidden transition-all duration-300 ease-out;
+  max-height: 0;
+}
+.accordion-content.open {
+  max-height: 1000px; /* Arbitrary large value to ensure content is fully visible */
+}
+.accordion-header .chevron {
+  transition: transform 0.3s ease-out;
+}
+.accordion-header .chevron.open {
+  transform: rotate(180deg);
+}

@@ -1,0 +1,31 @@
+defmodule PgSiphonManagement.Persistence.FileExportRequest do
+  use Ecto.Schema
+
+  import Ecto.Changeset
+
+  embedded_schema do
+    field :file_path, :string
+  end
+
+  def changeset(file_export_request, attrs) do
+    file_export_request
+    |> cast(attrs, [:file_path])
+    |> validate_required([:file_path])
+  end
+
+  def create(attrs) do
+    %__MODULE__{}
+    |> changeset(attrs)
+    |> apply_changeset()
+  end
+
+  def apply_changeset(changeset) do
+    case changeset do
+      %Ecto.Changeset{valid?: true} ->
+        {:ok, apply_changes(changeset)}
+
+      _ ->
+        {:error, changeset}
+    end
+  end
+end

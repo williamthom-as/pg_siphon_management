@@ -1,32 +1,39 @@
-<header class="px-4 sm:px-6 lg:px-8">
-  <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
-    <div class="flex items-center gap-4">
-      <a href="/">
-        <img src={~p"/images/logo.svg"} width="36" />
-      </a>
-      <p class="bg-brand/5 text-brand rounded-full px-2 font-medium leading-6">
-        v<%= Application.spec(:phoenix, :vsn) %>
-      </p>
-    </div>
-    <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-      <a href="https://twitter.com/elixirphoenix" class="hover:text-zinc-700">
-        @elixirphoenix
-      </a>
-      <a href="https://github.com/phoenixframework/phoenix" class="hover:text-zinc-700">
-        GitHub
-      </a>
-      <a
-        href="https://hexdocs.pm/phoenix/overview.html"
-        class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
-      >
-        Get Started <span aria-hidden="true">&rarr;</span>
-      </a>
+<div class="flex h-screen">
+  <.sidebar>
+    <:nav_links>
+      <.nav_link href={~p"/status"} tooltip="Proxy">
+        <Heroicons.icon name="server-stack" type="outline" class="h-4 w-4" />
+      </.nav_link>
+      <.nav_link href={~p"/status"} tooltip="Analytics">
+        <Heroicons.icon name="presentation-chart-line" type="outline" class="h-4 w-4" />
+      </.nav_link>
+    </:nav_links>
+    <:bottom_links></:bottom_links>
+  </.sidebar>
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+    <.topbar>
+      <:left_slot>
+        <span class="text-gray-600 text-xs font-mono">
+          / home
+        </span>
+        <span class="text-gray-600 text-xs font-mono"> / </span>
+        <span class="text-gray-300 text-xs font-mono">
+          management
+        </span>
+      </:left_slot>
+      <:center_slot></:center_slot>
+      <:right_slot>
+        <div>
+          <.badge colour="blue">
+            <span class="font-mono">Connected</span>
+          </.badge>
+        </div>
+      </:right_slot>
+    </.topbar>
+    <div class="flex-1">
+      <.flash_group flash={@flash} />
+      <%= @inner_content %>
     </div>
   </div>
-</header>
-<main class="px-4 py-20 sm:px-6 lg:px-8">
-  <div class="mx-auto max-w-4xl">
-    <.flash_group flash={@flash} />
-    <%= @inner_content %>
-  </div>
-</main>
+</div>

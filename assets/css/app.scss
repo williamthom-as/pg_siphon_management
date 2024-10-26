@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import "./scss/layout.scss";
+@import "./scss/animations.scss";
 
 .card {
   @apply p-4 bg-blue-200 text-blue-800 rounded-lg;

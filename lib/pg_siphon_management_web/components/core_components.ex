@@ -231,8 +231,8 @@ defmodule PgSiphonManagementWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
+        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-blue-700 py-1 px-2",
+        "text-xs font-semibold leading-6 text-blue-500 active:text-white/80",
         @class
       ]}
       {@rest}
@@ -335,7 +335,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
+        class="bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-4"
         multiple={@multiple}
         {@rest}
       >
@@ -377,8 +377,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          "bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-4",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
@@ -396,7 +395,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
+    <label for={@for} class="block text-xs font-semibold leading-6 text-gray-300">
       <%= render_slot(@inner_block) %>
     </label>
     """

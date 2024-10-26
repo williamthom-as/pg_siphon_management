@@ -33,6 +33,42 @@ Hooks.ScrollToBottom = {
   }
 }
 
+Hooks.Accordion = {
+  mounted() {
+    this.el.querySelectorAll('.accordion-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const content = header.nextElementSibling;
+        const chevron = header.querySelector('.chevron');
+        const allContents = this.el.querySelectorAll('.accordion-content');
+        const allChevrons = this.el.querySelectorAll('.chevron');
+    
+        allContents.forEach(item => {
+          if (item !== content) {
+            item.classList.remove('open');
+            item.style.maxHeight = 0;
+          }
+        });
+    
+        allChevrons.forEach(item => {
+          if (item !== chevron) {
+            item.classList.remove('open');
+          }
+        });
+    
+        if (content.classList.contains('open')) {
+          content.classList.remove('open');
+          content.style.maxHeight = 0;
+          chevron.classList.remove('open');
+        } else {
+          content.classList.add('open');
+          content.style.maxHeight = content.scrollHeight + 'px';
+          chevron.classList.add('open');
+        }
+      });
+    });
+  }
+}
+
 export default Hooks 
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")

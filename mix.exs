@@ -44,9 +44,10 @@ defmodule PgSiphonManagement.MixProject do
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
+      {:ex_heroicons, "~> 3.0.0"},
       {:heroicons,
        github: "tailwindlabs/heroicons",
-       tag: "v2.1.1",
+       tag: "v2.1.5",
        sparse: "optimized",
        app: false,
        compile: false,
@@ -80,7 +81,7 @@ defmodule PgSiphonManagement.MixProject do
       "assets.build": [
         "esbuild pg_siphon_management",
         "sass pg_siphon_management",
-        "tailwind pg_siphon_management",
+        "tailwind pg_siphon_management"
       ],
       "assets.deploy": [
         "esbuild pg_siphon_management --minify",
