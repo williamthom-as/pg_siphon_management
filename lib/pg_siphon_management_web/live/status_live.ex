@@ -68,8 +68,11 @@ defmodule PgSiphonManagementWeb.StatusLive do
           <.accordion_entry title="Monitoring Settings" open={@accordion_open["monitoring_settings"]}>
             <.kvp_container
               title="Message Types"
-              tooltip="If no types are selected, all message frame types are displayed"
+              tooltip="If no types are selected, all message frame types are displayed."
             >
+              <div class="text-gray-600 text-xs mb-2">
+                <span class="font-semibold">Note:</span> If no types are selected, all message frame types are displayed.
+              </div>
               <%= for {key, value} <- PgSiphon.Message.get_fe_message_types() do %>
                 <.kvp_entry>
                   <:key><%= value %></:key>

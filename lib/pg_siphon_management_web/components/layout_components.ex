@@ -21,7 +21,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
   def sidebar(assigns) do
     ~H"""
     <div class="w-10 bg-gray-900 text-white flex flex-col items-center border-r border-gray-800">
-      <div class="p-2 pt-4 text-center text-xs font-mono [writing-mode:vertical-lr]">PgSiphon</div>
+      <div class="p-2 pt-3 text-center text-xs font-mono [writing-mode:vertical-lr]">PgSiphon</div>
       <nav class="flex-1 px-4 py-4 space-y-2">
         <%= render_slot(@nav_links) %>
       </nav>
