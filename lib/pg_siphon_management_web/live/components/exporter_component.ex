@@ -17,7 +17,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-20">
+    <div class="min-h-64">
       <%= if @file_recording do %>
         <.alert_bar type="success">
           <span class="font-mono text-xs">Recording in progress to '<%= @file_path %>'</span>
@@ -33,7 +33,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
           />
           <.input
             type="select"
-            field={@form[:file_path]}
+            field={@form[:file_format]}
             label="File Format"
             options={[{"Text", "text"}, {"CSV", "csv"}, {"JSON", "json"}]}
           />

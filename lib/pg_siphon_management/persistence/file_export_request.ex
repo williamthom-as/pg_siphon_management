@@ -5,12 +5,13 @@ defmodule PgSiphonManagement.Persistence.FileExportRequest do
 
   embedded_schema do
     field :file_path, :string
+    field :file_format, :string
   end
 
   def changeset(file_export_request, attrs) do
     file_export_request
-    |> cast(attrs, [:file_path])
-    |> validate_required([:file_path])
+    |> cast(attrs, [:file_path, :file_format])
+    |> validate_required([:file_path, :file_format])
   end
 
   def create(attrs) do

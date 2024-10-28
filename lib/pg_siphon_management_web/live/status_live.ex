@@ -3,6 +3,10 @@ defmodule PgSiphonManagementWeb.StatusLive do
 
   @max_display_records 500
 
+  alias PgSiphonManagementWeb.ActiveConnectionsComponent
+  alias PgSiphonManagementWeb.ExporterComponent
+  alias PgSiphon.ActiveConnectionsServer
+
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(:broadcaster, "message_frames")
@@ -11,6 +15,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
     %{recording: recording} = :sys.get_state(:query_server)
     %{filter_message_types: filter_message_types} = :sys.get_state(:monitoring_server)
     proxy_config = :sys.get_state(:proxy_server)
+    active_connections = ActiveConnectionsServer.get_active_connections()
 
     socket =
       socket
@@ -19,6 +24,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
       |> assign(recording: recording)
       |> assign(proxy_config: proxy_config)
       |> assign(filter_message_types: filter_message_types)
+      |> assign(active_connections: active_connections)
       |> assign(accordion_open: %{"monitoring_settings" => true})
 
     {:ok, socket}
@@ -71,7 +77,8 @@ defmodule PgSiphonManagementWeb.StatusLive do
               tooltip="If no types are selected, all message frame types are displayed."
             >
               <div class="text-gray-600 text-xs mb-2">
-                <span class="font-semibold">Note:</span> If no types are selected, all message frame types are displayed.
+                <span class="font-semibold">Note:</span>
+                If no types are selected, all message frame types are displayed.
               </div>
               <%= for {key, value} <- PgSiphon.Message.get_fe_message_types() do %>
                 <.kvp_entry>
@@ -102,8 +109,15 @@ defmodule PgSiphonManagementWeb.StatusLive do
               </div>
             </.kvp_container>
           </.accordion_entry>
+          <.accordion_entry title="Active Connections">
+            <.live_component
+              module={ActiveConnectionsComponent}
+              id={:active_conns}
+              active_connections={@active_connections}
+            />
+          </.accordion_entry>
           <.accordion_entry title="Record Session">
-            <.live_component module={PgSiphonManagementWeb.ExporterComponent} id={:exporter} />
+            <.live_component module={ExporterComponent} id={:exporter} />
           </.accordion_entry>
         </.accordion_container>
       </:left_section>
@@ -111,11 +125,15 @@ defmodule PgSiphonManagementWeb.StatusLive do
         <%!-- Move this to live component later  --%>
         <div class="mx-auto border-gray-700">
           <div class="bg-gray-800 rounded-t-sm px-4 py-2 flex items-center justify-between">
-            <div class="text-gray-400 text-xs font-mono">
-              <%= Enum.join(@filter_message_types, ", ") %>
-            </div>
+            <div class="text-gray-400 text-xs font-mono"></div>
             <span class="text-gray-400 text-xs font-mono">
-              Logging: All [<%= @counter %>]
+              Logging:
+              <%= if Enum.empty?(@filter_message_types) do %>
+                All
+              <% else %>
+                <%= Enum.join(@filter_message_types, ", ") %>
+              <% end %>
+              [<%= @counter %>]
             </span>
           </div>
           <div
@@ -154,6 +172,16 @@ defmodule PgSiphonManagementWeb.StatusLive do
     {:noreply, assign(socket, filter_message_types: filter_message_types)}
   end
 
+  def handle_event("refresh_connections", _, socket) do
+    socket = put_flash(socket, :info, "Refreshed connections successfully")
+
+    {:noreply, assign_connections(socket)}
+  end
+
+  def handle_info(:refresh_connections, socket) do
+    {:noreply, assign_connections(socket)}
+  end
+
   @spec handle_info({:notify, map()}, Phoenix.LiveView.Socket.t()) ::
           {:noreply, Phoenix.LiveView.Socket.t()}
 
@@ -174,7 +202,6 @@ defmodule PgSiphonManagementWeb.StatusLive do
 
   @spec handle_overflow(Phoenix.LiveView.Socket.t(), non_neg_integer()) ::
           Phoenix.LiveView.Socket.t()
-
   defp handle_overflow(socket, counter) do
     cond do
       counter >= @max_display_records ->
@@ -184,5 +211,11 @@ defmodule PgSiphonManagementWeb.StatusLive do
       true ->
         socket
     end
+  end
+
+  defp assign_connections(socket) do
+    assign(socket,
+      active_connections: ActiveConnectionsServer.get_active_connections()
+    )
   end
 end
