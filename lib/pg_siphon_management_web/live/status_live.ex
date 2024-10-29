@@ -36,23 +36,13 @@ defmodule PgSiphonManagementWeb.StatusLive do
       <:left_section>
         <.accordion_container id="accordion-status-page">
           <.accordion_entry title="Proxy Settings">
-            <.kvp_container title="From">
+            <.kvp_container title="Proxy">
               <.kvp_entry>
-                <:key>Host Addr:</:key>
+                <:key>Addr:</:key>
                 <:value><%= @proxy_config.to_host %></:value>
               </.kvp_entry>
               <.kvp_entry>
-                <:key>Host Port:</:key>
-                <:value><%= @proxy_config.to_port %></:value>
-              </.kvp_entry>
-            </.kvp_container>
-            <.kvp_container title="To">
-              <.kvp_entry>
-                <:key>Proxy Addr:</:key>
-                <:value><%= @proxy_config.to_host %></:value>
-              </.kvp_entry>
-              <.kvp_entry>
-                <:key>Proxy Port:</:key>
+                <:key>Port:</:key>
                 <:value><%= @proxy_config.from_port %></:value>
               </.kvp_entry>
               <.kvp_entry>
@@ -68,6 +58,16 @@ defmodule PgSiphonManagementWeb.StatusLive do
                     </.badge>
                   <% end %>
                 </:value>
+              </.kvp_entry>
+            </.kvp_container>
+            <.kvp_container title="Host">
+              <.kvp_entry>
+                <:key>Addr:</:key>
+                <:value><%= @proxy_config.to_host %></:value>
+              </.kvp_entry>
+              <.kvp_entry>
+                <:key>Port:</:key>
+                <:value><%= @proxy_config.to_port %></:value>
               </.kvp_entry>
             </.kvp_container>
           </.accordion_entry>
@@ -161,20 +161,17 @@ defmodule PgSiphonManagementWeb.StatusLive do
   def handle_event("toggle_filter_message_type", %{"key" => key, "value" => "on"}, socket) do
     PgSiphon.MonitoringServer.add_filter_type(key)
 
-    %{filter_message_types: filter_message_types} = :sys.get_state(:monitoring_server)
-    {:noreply, assign(socket, filter_message_types: filter_message_types)}
+    {:noreply, socket}
   end
 
   def handle_event("toggle_filter_message_type", %{"key" => key}, socket) do
     PgSiphon.MonitoringServer.remove_filter_type(key)
 
-    %{filter_message_types: filter_message_types} = :sys.get_state(:monitoring_server)
-    {:noreply, assign(socket, filter_message_types: filter_message_types)}
+    # %{filter_message_types: filter_message_types} = :sys.get_state(:monitoring_server)
+    {:noreply, socket}
   end
 
   def handle_event("refresh_connections", _, socket) do
-    socket = put_flash(socket, :info, "Refreshed connections successfully")
-
     {:noreply, assign_connections(socket)}
   end
 
@@ -182,10 +179,9 @@ defmodule PgSiphonManagementWeb.StatusLive do
     {:noreply, assign_connections(socket)}
   end
 
-  @spec handle_info({:notify, map()}, Phoenix.LiveView.Socket.t()) ::
+  @spec handle_info({:new_message_frame, map()}, Phoenix.LiveView.Socket.t()) ::
           {:noreply, Phoenix.LiveView.Socket.t()}
-
-  def handle_info({:notify, message}, socket) do
+  def handle_info({:new_message_frame, message}, socket) do
     counter = socket.assigns.counter
 
     formatted_time =
@@ -198,6 +194,24 @@ defmodule PgSiphonManagementWeb.StatusLive do
       |> handle_overflow(counter)
 
     {:noreply, assign(socket, counter: counter + 1)}
+  end
+
+  @spec handle_info({:connections_changed}, Phoenix.LiveView.Socket.t()) ::
+          {:noreply, Phoenix.LiveView.Socket.t()}
+  def handle_info({:connections_changed}, socket) do
+    {:noreply, assign_connections(socket)}
+  end
+
+  @spec handle_info(:clear_expired_connections, Phoenix.LiveView.Socket.t()) ::
+          {:noreply, Phoenix.LiveView.Socket.t()}
+  def handle_info(:clear_expired_connections, socket) do
+    {:noreply, assign_connections(socket)}
+  end
+
+  @spec handle_info({:message_types_changed, list()}, Phoenix.LiveView.Socket.t()) ::
+          {:noreply, Phoenix.LiveView.Socket.t()}
+  def handle_info({:message_types_changed, types}, socket) do
+    {:noreply, assign(socket, filter_message_types: types)}
   end
 
   @spec handle_overflow(Phoenix.LiveView.Socket.t(), non_neg_integer()) ::

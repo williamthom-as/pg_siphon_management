@@ -16,8 +16,7 @@ defmodule PgSiphonManagementWeb.Router do
 
   scope "/", PgSiphonManagementWeb do
     pipe_through :browser
-    get "/", PageController, :home
-    live "/status", StatusLive
+    live "/", StatusLive, :home
   end
 
   # Other scopes may use custom stacks.
