@@ -65,9 +65,16 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
     {:reply, {:error, :not_started}, state}
   end
 
-  def handle_info({:notify, message}, %{recording: true} = state) do
-    IO.binwrite(state.current_file, "#{message}\n")
+  def handle_info(
+        {:new_message_frame, %{type: type, payload: payload}},
+        %{recording: true} = state
+      ) do
+    IO.binwrite(state.current_file, "#{type},#{payload}\n")
 
+    {:noreply, state}
+  end
+
+  def handle_info({:connections_changed}, state) do
     {:noreply, state}
   end
 

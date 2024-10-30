@@ -25,7 +25,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
       |> assign(proxy_config: proxy_config)
       |> assign(filter_message_types: filter_message_types)
       |> assign(active_connections: active_connections)
-      |> assign(accordion_open: %{"monitoring_settings" => true})
+      |> assign(accordion_open: %{"monitoring_settings" => true, "active_connections" => false})
 
     {:ok, socket}
   end
@@ -109,7 +109,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
               </div>
             </.kvp_container>
           </.accordion_entry>
-          <.accordion_entry title="Active Connections">
+          <.accordion_entry title="Active Connections" open={@accordion_open["active_connections"]}>
             <.live_component
               module={ActiveConnectionsComponent}
               id={:active_conns}
@@ -160,14 +160,11 @@ defmodule PgSiphonManagementWeb.StatusLive do
 
   def handle_event("toggle_filter_message_type", %{"key" => key, "value" => "on"}, socket) do
     PgSiphon.MonitoringServer.add_filter_type(key)
-
     {:noreply, socket}
   end
 
   def handle_event("toggle_filter_message_type", %{"key" => key}, socket) do
     PgSiphon.MonitoringServer.remove_filter_type(key)
-
-    # %{filter_message_types: filter_message_types} = :sys.get_state(:monitoring_server)
     {:noreply, socket}
   end
 
@@ -228,8 +225,8 @@ defmodule PgSiphonManagementWeb.StatusLive do
   end
 
   defp assign_connections(socket) do
-    assign(socket,
-      active_connections: ActiveConnectionsServer.get_active_connections()
-    )
+    socket
+    |> assign(active_connections: ActiveConnectionsServer.get_active_connections())
+    |> assign(accordion_open: %{socket.assigns.accordion_open | "active_connections" => true})
   end
 end

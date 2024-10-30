@@ -76,8 +76,8 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
     """
   end
 
-  defp alert_class("success"), do: "bg-green-500 text-white p-4 rounded-lg shadow-md mb-4"
-  defp alert_class("danger"), do: "bg-red-500 text-white p-4 rounded-lg shadow-md mb-4"
-  defp alert_class("primary"), do: "bg-blue-500 text-white p-4 rounded-lg shadow-md mb-4"
-  defp alert_class(_), do: "bg-gray-500 text-white p-4 rounded-lg shadow-md mb-4"
+  defp alert_class("success"), do: "bg-green-500 text-white p-4 rounded-lg shadow-md"
+  defp alert_class("danger"), do: "bg-red-500 text-white p-4 rounded-lg shadow-md"
+  defp alert_class("primary"), do: "bg-blue-500 text-white p-4 rounded-lg shadow-md"
+  defp alert_class(_), do: "bg-gray-500 text-white p-4 rounded-lg shadow-md"
 end

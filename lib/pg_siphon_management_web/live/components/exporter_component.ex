@@ -2,6 +2,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
   use PgSiphonManagementWeb, :live_component
 
   alias PgSiphonManagement.Persistence.FileExportRequest
+  alias PgSiphonManagement.Persistence.FileExporterService
 
   def mount(socket) do
     {_, changeset} = FileExportRequest.create(%{})
@@ -39,7 +40,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
           />
           <.button
             phx-disable-with="Submitting ..."
-            class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs"
+            class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs mt-2"
           >
             Start
           </.button>
@@ -49,7 +50,14 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
     """
   end
 
-  def handle_event("submit", %{"file_export_request" => f_params}, socket) do
+  def handle_event(
+        "submit",
+        %{
+          "file_export_request" =>
+            %{"file_format" => _file_format, "file_path" => file_path} = f_params
+        },
+        socket
+      ) do
     case FileExportRequest.create(f_params) do
       {:ok, _new_request} ->
         {_, new_changeset} = FileExportRequest.create(%{})
@@ -57,9 +65,9 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
         socket = put_flash(socket, :info, "Triggered successfully!")
 
         # trigger FileExporterService impl todo.
-        # use new_request.file_path
 
-        IO.puts("Here!!")
+        # IO.puts(file_path)
+        FileExporterService.start(file_path)
 
         %{recording: file_recording, file_path: file_path} =
           :sys.get_state(:file_exporter_service)
