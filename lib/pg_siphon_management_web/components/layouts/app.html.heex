@@ -1,11 +1,21 @@
 <div class="flex h-screen">
   <.sidebar>
     <:nav_links>
-      <.nav_link href={~p"/status"} tooltip="Proxy">
-        <Heroicons.icon name="server-stack" type="outline" class="h-4 w-4" />
+      <.nav_link
+        href={~p"/"}
+        tooltip="Proxy"
+        route={:home}
+        current_path={@live_action}
+        icon="server-stack"
+      >
       </.nav_link>
-      <.nav_link href={~p"/status"} tooltip="Analytics">
-        <Heroicons.icon name="presentation-chart-line" type="outline" class="h-4 w-4" />
+      <.nav_link
+        href={~p"/analytics"}
+        tooltip="Analytics"
+        route={:analytics}
+        current_path={@live_action}
+        icon="presentation-chart-line"
+      >
       </.nav_link>
     </:nav_links>
     <:bottom_links></:bottom_links>
@@ -18,16 +28,27 @@
           / home
         </span>
         <span class="text-gray-600 text-xs font-mono"> / </span>
-        <span class="text-gray-300 text-xs font-mono">
-          management
-        </span>
+        <%= if @live_action == :home do %>
+          <span class="text-gray-300 text-xs font-mono">
+            proxy
+          </span>
+        <% else %>
+          <span class="text-gray-300 text-xs font-mono">
+            <%= @live_action %>
+          </span>
+        <% end %>
       </:left_slot>
       <:center_slot></:center_slot>
       <:right_slot>
-        <div>
-          <.badge colour="blue">
-            <span class="font-mono">Connected</span>
-          </.badge>
+        <div class="flex justify-end">
+          <div>
+            <.badge colour="blue"><span class="font-mono ">Connected</span></.badge>
+          </div>
+          <div>
+            <span class="font-mono text-gray-300 pl-4">
+              Help
+            </span>
+          </div>
         </div>
       </:right_slot>
     </.topbar>

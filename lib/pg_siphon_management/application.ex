@@ -3,6 +3,8 @@ defmodule PgSiphonManagement.Application do
   # for more information on OTP Applications
   @moduledoc false
 
+  require Logger
+
   use Application
 
   @impl true
@@ -23,6 +25,13 @@ defmodule PgSiphonManagement.Application do
       PgSiphonManagementWeb.Endpoint,
       PgSiphonManagement.Persistence.FileExporterService
     ]
+
+    {:ok, msg} =
+      Application.get_env(:pg_siphon_management, :export)
+      |> Keyword.get(:export_dir)
+      |> PgSiphonManagement.Persistence.FileHelpers.make_dir_p()
+
+    Logger.info("Export path status: #{msg}")
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

@@ -116,8 +116,8 @@ defmodule PgSiphonManagementWeb.CoreComponents do
       role="alert"
       class={[
         "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
-        @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
-        @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
+        @kind == :info && "bg-blue-600 text-white",
+        @kind == :error && "bg-red-600 text-white"
       ]}
       {@rest}
     >
@@ -231,7 +231,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-blue-700 py-1 px-2",
+        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 py-1 px-2",
         "text-xs font-semibold leading-6 text-blue-500 active:text-white/80",
         @class
       ]}
@@ -335,7 +335,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-4"
+        class="bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-2"
         multiple={@multiple}
         {@rest}
       >
@@ -377,7 +377,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-4",
+          "bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-2",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
@@ -408,8 +408,8 @@ defmodule PgSiphonManagementWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="mt-3 flex gap-3 text-sm leading-6 text-rose-600">
-      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none" />
+    <p class="flex gap-3 text-xs leading-6 text-rose-600">
+      <.icon name="hero-exclamation-circle-mini" class="mt-1 h-4 w-4 flex-none" />
       <%= render_slot(@inner_block) %>
     </p>
     """

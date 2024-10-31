@@ -9,6 +9,8 @@ import Config
 
 require Logger
 
+alias PgSiphonManagement.FileHelpers
+
 config :pg_siphon_management,
   ecto_repos: [PgSiphonManagement.Repo],
   generators: [timestamp_type: :utc_datetime]
@@ -23,6 +25,9 @@ config :pg_siphon_management, PgSiphonManagementWeb.Endpoint,
   ],
   pubsub_server: PgSiphonManagement.PubSub,
   live_view: [signing_salt: "UvQCsraA"]
+
+config :pg_siphon_management, :export,
+  export_dir: System.user_home() |> Path.join("pg_siphon_management")
 
 # Configures the mailer
 #
