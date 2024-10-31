@@ -1,16 +1,20 @@
 defmodule PgSiphonManagementWeb.UtilityComponents do
   use Phoenix.Component
 
-  slot :inner_block, required: true
+  slot :inner_block, required: false
   attr :tooltip, :string, default: ""
   attr :href, :string
+  attr :route, :atom
+  attr :current_path, :string
+  attr :icon, :string
+  attr :class, :string, default: ""
 
   @doc """
   Displays a navigation link.
 
   ## Examples
-      <.nav_link href="/status" tooltip="Status">Status</.nav_link>
-      <.nav_link href="/settings" tooltip="Settings">Settings</.nav_link>
+      <.nav_link href="/status" tooltip="Status" class="custom-class">Status</.nav_link>
+      <.nav_link href="/settings" tooltip="Settings" class="custom-class">Settings</.nav_link>
   """
 
   def nav_link(assigns) do
@@ -18,8 +22,15 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
     <div class="relative group">
       <a
         href={@href}
-        class="block p-2 rounded hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white"
+        class={
+          "block p-1.5 rounded hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white #{if @current_path == @route, do: "bg-gray-800", else: ""}"
+        }
       >
+        <Heroicons.icon
+          name={@icon}
+          type="outline"
+          class={"h-4 w-4 #{if @current_path == @route, do: "text-purple-500", else: ""}"}
+        />
         <%= render_slot(@inner_block) %>
       </a>
       <div class="absolute bg-opacity-75 left-full top-1/2 transform -translate-y-1/2 ml-2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
@@ -76,8 +87,15 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
     """
   end
 
-  defp alert_class("success"), do: "bg-green-500 text-white p-4 rounded-lg shadow-md"
-  defp alert_class("danger"), do: "bg-red-500 text-white p-4 rounded-lg shadow-md"
-  defp alert_class("primary"), do: "bg-blue-500 text-white p-4 rounded-lg shadow-md"
-  defp alert_class(_), do: "bg-gray-500 text-white p-4 rounded-lg shadow-md"
+  defp alert_class("success"),
+    do: "bg-gradient-to-br from-green-500 to-green-800 text-white p-4 rounded-md shadow-md"
+
+  defp alert_class("danger"),
+    do: "bg-gradient-to-br from-red-500 to-red-800 text-white p-4 rounded-md shadow-md"
+
+  defp alert_class("primary"),
+    do: "bg-gradient-to-br from-violet-500 to-violet-800 text-white p-4 rounded-md shadow-md"
+
+  defp alert_class(_),
+    do: "bg-gradient-to-br from-gray-500 to-gray-800 text-white p-4 rounded-md shadow-md"
 end

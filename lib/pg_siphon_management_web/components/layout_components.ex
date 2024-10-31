@@ -57,7 +57,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def topbar(assigns) do
     ~H"""
-    <div class="w-full h-8 bg-gray-900 text-gray-800 flex border-b border-gray-800">
+    <div class="w-full h-10 bg-gray-900 text-gray-800 flex border-b border-gray-800">
       <div class="flex-1 flex items-center justify-start">
         <div class="pl-4 p-2 text-center text-xs font-mono">
           <%= render_slot(@left_slot) %>

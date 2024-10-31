@@ -231,7 +231,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-blue-700 py-1 px-2",
+        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 py-1 px-2",
         "text-xs font-semibold leading-6 text-blue-500 active:text-white/80",
         @class
       ]}

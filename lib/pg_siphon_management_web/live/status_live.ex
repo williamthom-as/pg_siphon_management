@@ -84,7 +84,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
                 <.kvp_entry>
                   <:key><%= value %></:key>
                   <:value>
-                    <label class="flex items-center space-x-3">
+                    <label class="flex items-center space-x-3 cursor-pointer">
                       <span class="text-gray-300">[<%= key %>]</span>
 
                       <% is_on = Enum.member?(@filter_message_types, key) %>
@@ -109,15 +109,15 @@ defmodule PgSiphonManagementWeb.StatusLive do
               </div>
             </.kvp_container>
           </.accordion_entry>
+          <.accordion_entry title="Record Session">
+            <.live_component module={ExporterComponent} id={:exporter} />
+          </.accordion_entry>
           <.accordion_entry title="Active Connections" open={@accordion_open["active_connections"]}>
             <.live_component
               module={ActiveConnectionsComponent}
               id={:active_conns}
               active_connections={@active_connections}
             />
-          </.accordion_entry>
-          <.accordion_entry title="Record Session">
-            <.live_component module={ExporterComponent} id={:exporter} />
           </.accordion_entry>
         </.accordion_container>
       </:left_section>
@@ -166,10 +166,6 @@ defmodule PgSiphonManagementWeb.StatusLive do
   def handle_event("toggle_filter_message_type", %{"key" => key}, socket) do
     PgSiphon.MonitoringServer.remove_filter_type(key)
     {:noreply, socket}
-  end
-
-  def handle_event("refresh_connections", _, socket) do
-    {:noreply, assign_connections(socket)}
   end
 
   def handle_info(:refresh_connections, socket) do

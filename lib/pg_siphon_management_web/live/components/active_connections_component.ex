@@ -8,14 +8,6 @@ defmodule PgSiphonManagementWeb.ActiveConnectionsComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <div class="flex justify-end">
-        <%!-- <button
-          phx-click="refresh_connections"
-          class="hover:text-gray-300 hover:bg-gray-700 p-2 rounded"
-        >
-          <Heroicons.icon name="arrow-path" type="outline" class="h-4 w-4" />
-        </button> --%>
-      </div>
       <.kvp_container title="">
         <.kvp_entry :for={{{ip, port}, timestamp} <- @active_connections}>
           <:key>
@@ -29,7 +21,9 @@ defmodule PgSiphonManagementWeb.ActiveConnectionsComponent do
           </:value>
         </.kvp_entry>
         <%= if Enum.empty?(@active_connections) do %>
-          <.alert_bar type="primary">There are no active connections!</.alert_bar>
+          <.alert_bar type="primary">
+            There are no active connections!
+          </.alert_bar>
         <% end %>
       </.kvp_container>
     </div>

@@ -9,7 +9,7 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
   @pubsub_topic "message_frames"
 
   defmodule State do
-    defstruct recording: false, current_file: nil, file_path: nil
+    defstruct recording: false, current_file: nil, file_name: nil, root_dir: nil
   end
 
   # Client API
@@ -20,8 +20,8 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
     GenServer.start_link(__MODULE__, %State{}, name: @name)
   end
 
-  def start(file_path) do
-    GenServer.call(@name, {:start_export, file_path})
+  def start(file_name) do
+    GenServer.call(@name, {:start_export, file_name})
   end
 
   def stop() do
@@ -35,17 +35,23 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
   # Server callbacks
 
   def init(state) do
-    {:ok, state}
+    root_dir =
+      Application.get_env(:pg_siphon_management, :export)
+      |> Keyword.get(:export_dir)
+
+    {:ok, %{state | root_dir: root_dir}}
   end
 
-  def handle_call({:start_export, file_path}, _from, %{recording: false} = state) do
+  def handle_call({:start_export, file_name}, _from, %{recording: false} = state) do
+    file_path = Path.join(state.root_dir, file_name)
+
     Logger.info("Starting file export to #{file_path}")
 
     {:ok, file} = File.open(file_path, [:write])
     PubSub.subscribe(:broadcaster, @pubsub_topic)
 
     {:reply, {:ok, :started},
-     %{state | recording: true, current_file: file, file_path: file_path}}
+     %{state | recording: true, current_file: file, file_name: file_name}}
   end
 
   def handle_call({:start_export, _file_path}, _from, %{recording: true} = state) do
@@ -58,7 +64,7 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
     File.close(state.current_file)
     PubSub.unsubscribe(:broadcaster, @pubsub_topic)
 
-    {:reply, {:ok, :stopped}, %{state | recording: false, current_file: nil}}
+    {:reply, {:ok, :stopped}, %{state | recording: false, current_file: nil, file_name: nil}}
   end
 
   def handle_call(:stop_export, _from, %{recording: false} = state) do
@@ -69,6 +75,7 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
         {:new_message_frame, %{type: type, payload: payload}},
         %{recording: true} = state
       ) do
+    # we will handle different types here
     IO.binwrite(state.current_file, "#{type},#{payload}\n")
 
     {:noreply, state}

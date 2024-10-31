@@ -4,14 +4,14 @@ defmodule PgSiphonManagement.Persistence.FileExportRequest do
   import Ecto.Changeset
 
   embedded_schema do
-    field :file_path, :string
+    field :file_name, :string
     field :file_format, :string
   end
 
   def changeset(file_export_request, attrs) do
     file_export_request
-    |> cast(attrs, [:file_path, :file_format])
-    |> validate_required([:file_path, :file_format])
+    |> cast(attrs, [:file_name, :file_format])
+    |> validate_required([:file_name, :file_format])
   end
 
   def create(attrs) do
