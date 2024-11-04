@@ -4,7 +4,7 @@
       <.nav_link
         href={~p"/"}
         tooltip="Proxy"
-        route={:home}
+        route={:proxy}
         current_path={@live_action}
         icon="server-stack"
       >
@@ -28,15 +28,9 @@
           / home
         </span>
         <span class="text-gray-600 text-xs font-mono"> / </span>
-        <%= if @live_action == :home do %>
-          <span class="text-gray-300 text-xs font-mono">
-            proxy
-          </span>
-        <% else %>
-          <span class="text-gray-300 text-xs font-mono">
-            <%= @live_action %>
-          </span>
-        <% end %>
+        <span class="text-gray-300 text-xs font-mono">
+          <%= @live_action %>
+        </span>
       </:left_slot>
       <:center_slot></:center_slot>
       <:right_slot>
