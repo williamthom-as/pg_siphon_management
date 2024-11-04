@@ -53,7 +53,7 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
 
   def badge(assigns) do
     ~H"""
-    <span class={"badge bg-#{@colour}-500 text-white px-2 py-1 rounded"}>
+    <span class={"badge bg-gradient-to-br from-#{@colour}-500 to-#{@colour}-700 text-white px-2 py-1 rounded"}>
       <%= render_slot(@inner_block) %>
     </span>
     """

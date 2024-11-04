@@ -22,7 +22,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
       <%= if @file_recording do %>
         <.alert_bar type="success">
           <span class="font-mono text-xs">
-            Recording in progress to '<%= Path.join(@root_dir, @file_name) %>'
+            Recording in progress to '<%= Path.join(@root_dir, @file_name <> ".raw.csv") %>'
           </span>
         </.alert_bar>
         <div class="mt-4">

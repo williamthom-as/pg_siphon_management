@@ -73,7 +73,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
           </.accordion_entry>
           <.accordion_entry title="Monitoring Settings" open={@accordion_open["monitoring_settings"]}>
             <.kvp_container
-              title="Message Types"
+              title="Message Types (Front End)"
               tooltip="If no types are selected, all message frame types are displayed."
             >
               <div class="text-gray-600 text-xs mb-2">

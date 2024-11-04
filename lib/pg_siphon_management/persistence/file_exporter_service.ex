@@ -43,7 +43,7 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
   end
 
   def handle_call({:start_export, file_name}, _from, %{recording: false} = state) do
-    file_path = Path.join(state.root_dir, file_name)
+    file_path = Path.join(state.root_dir, file_name <> ".raw.csv")
 
     Logger.info("Starting file export to #{file_path}")
 
@@ -76,7 +76,12 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
         %{recording: true} = state
       ) do
     # we will handle different types here
-    IO.binwrite(state.current_file, "#{type},#{payload}\n")
+    csv_row =
+      [[type, payload]]
+      |> CSV.encode()
+      |> Enum.join()
+
+    IO.binwrite(state.current_file, csv_row)
 
     {:noreply, state}
   end
