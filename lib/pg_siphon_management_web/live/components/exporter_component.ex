@@ -4,6 +4,8 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
   alias PgSiphonManagement.Persistence.FileExportRequest
   alias PgSiphonManagement.Persistence.FileExporterService
 
+  alias Phoenix.PubSub
+
   def mount(socket) do
     {_, changeset} = FileExportRequest.create(%{})
 
@@ -30,7 +32,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
             phx-click="stop"
             phx-target={@myself}
             phx-disable-with="Stopping ..."
-            class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs"
+            class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs"
           >
             Stop Recording
           </.button>
@@ -79,11 +81,12 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
       {:ok, _new_request} ->
         {_, new_changeset} = FileExportRequest.create(%{})
 
-        socket = put_flash(socket, :info, "Triggered successfully!")
+        PubSub.broadcast(
+          PgSiphonManagement.PubSub,
+          "file_export",
+          {:start_export, %{file_name: file_name}}
+        )
 
-        # trigger FileExporterService impl todo.
-
-        # IO.puts(file_path)
         FileExporterService.start(file_name)
 
         %{recording: file_recording, file_name: file_name} =

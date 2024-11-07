@@ -16,7 +16,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
       assign(
         socket,
         recordings: recordings,
-        options: options
+        options: options,
+        page_title: "Analytics"
       )
 
     {:ok, socket}
@@ -24,12 +25,26 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def handle_params(%{"file" => file}, _uri, socket) do
     selected_file = Recordings.get_recording(file)
+    has_analysis = Recordings.has_analysis?(file)
 
-    {:noreply, assign(socket, selected_file: selected_file)}
+    {:noreply,
+     assign(
+       socket,
+       selected_file: selected_file,
+       has_analysis: has_analysis
+     )}
   end
 
   def handle_params(%{}, _uri, socket) do
-    {:noreply, assign(socket, selected_file: hd(socket.assigns.recordings))}
+    selected_file = hd(socket.assigns.recordings)
+    has_analysis = Recordings.has_analysis?(selected_file.file)
+
+    {:noreply,
+     assign(
+       socket,
+       selected_file: hd(socket.assigns.recordings),
+       has_analysis: has_analysis
+     )}
   end
 
   def render(assigns) do
@@ -76,8 +91,15 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                     ) %>
                   </p>
                 </div>
-                <div>
-                  <.button phx-click="delete">Perform Analysis</.button>
+                <div class="flex flex-row items-center space-x-4">
+                  <div class="font-mono text-xs text-gray-500 italic">
+                    <%= unless @has_analysis do %>
+                      No analysis has been performed yet.
+                    <% end %>
+                  </div>
+                  <div>
+                    <.button phx-click="perform-analysis">Perform Analysis</.button>
+                  </div>
                 </div>
               </div>
             </div>

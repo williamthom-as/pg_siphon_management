@@ -88,14 +88,14 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
   end
 
   defp alert_class("success"),
-    do: "bg-gradient-to-br from-green-500 to-green-800 text-white p-4 rounded-md shadow-md"
+    do: "bg-gradient-to-br from-green-500 to-green-700 text-white p-4 rounded-md shadow-md"
 
   defp alert_class("danger"),
-    do: "bg-gradient-to-br from-red-500 to-red-800 text-white p-4 rounded-md shadow-md"
+    do: "bg-gradient-to-br from-red-500 to-red-700 text-white p-4 rounded-md shadow-md"
 
   defp alert_class("primary"),
-    do: "bg-gradient-to-br from-violet-500 to-violet-800 text-white p-4 rounded-md shadow-md"
+    do: "bg-gradient-to-br from-violet-500 to-violet-700 text-white p-4 rounded-md shadow-md"
 
   defp alert_class(_),
-    do: "bg-gradient-to-br from-gray-500 to-gray-800 text-white p-4 rounded-md shadow-md"
+    do: "bg-gradient-to-br from-gray-500 to-gray-700 text-white p-4 rounded-md shadow-md"
 end

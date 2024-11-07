@@ -26,6 +26,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
       |> assign(filter_message_types: filter_message_types)
       |> assign(active_connections: active_connections)
       |> assign(accordion_open: %{"monitoring_settings" => true, "active_connections" => false})
+      |> assign(page_title: "Proxy")
 
     {:ok, socket}
   end
@@ -205,6 +206,11 @@ defmodule PgSiphonManagementWeb.StatusLive do
           {:noreply, Phoenix.LiveView.Socket.t()}
   def handle_info({:message_types_changed, types}, socket) do
     {:noreply, assign(socket, filter_message_types: types)}
+  end
+
+  def handle_info({:start_export, %{file_name: file_name}}, socket) do
+    IO.puts("here 2!")
+    {:noreply, assign(socket, file_recording: true, file_name: file_name)}
   end
 
   @spec handle_overflow(Phoenix.LiveView.Socket.t(), non_neg_integer()) ::

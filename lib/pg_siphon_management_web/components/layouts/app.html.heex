@@ -24,22 +24,25 @@
   <div class="flex-1 flex flex-col">
     <.topbar>
       <:left_slot>
-        <span class="text-gray-600 text-xs font-mono">
-          / home
-        </span>
-        <span class="text-gray-600 text-xs font-mono"> / </span>
-        <span class="text-gray-300 text-xs font-mono">
-          <%= @live_action %>
-        </span>
+        <div class="overflow-hidden whitespace-nowrap overflow-ellipsis">
+          <span class="text-gray-600 text-xs font-mono">
+            / home
+          </span>
+          <span class="text-gray-600 text-xs font-mono"> / </span>
+          <span class="text-gray-300 text-xs font-mono">
+            <%= @live_action %>
+          </span>
+        </div>
       </:left_slot>
       <:center_slot></:center_slot>
       <:right_slot>
-        <div class="flex justify-end">
-          <div>
-            <.badge colour="blue"><span class="font-mono ">Connected</span></.badge>
+        <div class="flex justify-end space-x-3">
+          <div class="flex items-center">
+            <div class="w-2.5 h-2.5 bg-green-500 rounded-full mr-2 lighthouse"></div>
+            <span class="font-mono text-gray-300">Proxy</span>
           </div>
-          <div>
-            <span class="font-mono text-gray-300 pl-4">
+          <div class="border-l border-gray-700">
+            <span class="font-mono text-gray-300 pl-3">
               Help
             </span>
           </div>

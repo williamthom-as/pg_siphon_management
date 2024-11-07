@@ -71,4 +71,14 @@ defmodule PgSiphonManagement.Recordings do
       size: stat.size
     }
   end
+
+  def has_analysis?(file) do
+    root_dir =
+      Application.get_env(:pg_siphon_management, :export)
+      |> Keyword.get(:export_dir)
+
+    file = String.replace(file, ".raw.csv", ".analysis.json")
+
+    File.exists?(Path.join(root_dir, file))
+  end
 end
