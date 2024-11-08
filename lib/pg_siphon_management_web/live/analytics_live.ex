@@ -23,27 +23,28 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     {:ok, socket}
   end
 
-  def handle_params(%{"file" => file}, _uri, socket) do
-    selected_file = Recordings.get_recording(file)
-    has_analysis = Recordings.has_analysis?(file)
+  def handle_params(%{"file_name" => file_name}, _uri, socket) do
+    selected_file = Recordings.get_recording(file_name)
+
+    {_, analysis} = Recordings.get_analysis(file_name)
 
     {:noreply,
      assign(
        socket,
        selected_file: selected_file,
-       has_analysis: has_analysis
+       analysis: analysis
      )}
   end
 
   def handle_params(%{}, _uri, socket) do
     selected_file = hd(socket.assigns.recordings)
-    has_analysis = Recordings.has_analysis?(selected_file.file)
+    {_, analysis} = Recordings.get_analysis(selected_file.file_name)
 
     {:noreply,
      assign(
        socket,
-       selected_file: hd(socket.assigns.recordings),
-       has_analysis: has_analysis
+       selected_file: selected_file,
+       analysis: analysis
      )}
   end
 
@@ -55,58 +56,111 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
           <h5 class="mb-4 text-base font-mono text-sm text-gray-200">
             Recorded Logs
           </h5>
-          <div class="-mb-2">
-            <form phx-change="search">
-              <.input
-                name="search"
-                value=""
-                label="Search"
-                placeholder="Enter file name to search"
-                autocomplete="off"
-                type="text"
-                phx-debounce={400}
-              />
-            </form>
-          </div>
-          <ul class="my-2 space-y-2">
-            <%= for recording <- @recordings do %>
-              <.card recording={recording} selected_file={@selected_file}></.card>
-            <% end %>
-          </ul>
+          <.search_form></.search_form>
+          <.cards recordings={@recordings} selected_file={@selected_file}></.cards>
         </div>
       </:left_section>
       <:right_section>
-        <section class="flex bg-gray-900">
-          <div class="w-full mx-auto">
-            <div class="relative overflow-hidden bg-gray-800 rounded-sm">
-              <div class="flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
-                <div>
-                  <h4 class="mr-3 font-semibold text-gray-200">
-                    Recording Analysis for '<%= @selected_file.file %>'
-                  </h4>
-                  <p class="text-gray-400 text-xs">
-                    Created at <%= Timex.format!(
-                      @selected_file.creation_time,
-                      "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"
-                    ) %>
-                  </p>
-                </div>
-                <div class="flex flex-row items-center space-x-4">
-                  <div class="font-mono text-xs text-gray-500 italic">
-                    <%= unless @has_analysis do %>
-                      No analysis has been performed yet.
-                    <% end %>
-                  </div>
-                  <div>
-                    <.button phx-click="perform-analysis">Perform Analysis</.button>
-                  </div>
-                </div>
-              </div>
+        <.internal_header>
+          <:title>
+            Recording Analysis for '<%= @selected_file.file_name %>'
+          </:title>
+          <:sub_title>
+            Created at <%= Timex.format!(
+              @selected_file.creation_time,
+              "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"
+            ) %>
+          </:sub_title>
+          <:left_section>
+            <div class="font-mono text-xs text-gray-500 italic">
+              <%= unless @selected_file.has_analysis do %>
+                No analysis has been performed yet.
+              <% end %>
             </div>
-          </div>
-        </section>
+            <div>
+              <.button phx-click="perform-analysis">Perform Analysis</.button>
+            </div>
+          </:left_section>
+        </.internal_header>
+        <div class="text-gray-600 mt-4">
+          <%= if @analysis do %>
+            <.dashboard_container>
+              <.dashboard_card title="Total Count of Messages">
+                <div class="text-md text-gray-200">
+                  <%= @analysis.content["total_count"] %>
+                </div>
+              </.dashboard_card>
+              <.dashboard_card title="Duration">
+                <div class="text-md text-gray-200">-</div>
+              </.dashboard_card>
+              <.dashboard_card title="Start Time">
+                <div class="text-md text-gray-200">-</div>
+              </.dashboard_card>
+              <.dashboard_card title="Finish Time">
+                <div class="text-md text-gray-200">-</div>
+              </.dashboard_card>
+            </.dashboard_container>
+            <.dashboard_container>
+              <.dashboard_card title="Total Count of Messages" class="col-span-2">
+                <.kvp_entry>
+                  <:key></:key>
+                  <:value>Count</:value>
+                </.kvp_entry>
+                <%= for {type, count} <- @analysis.content["message_type_count"] do %>
+                  <.kvp_entry>
+                    <:key><%= type %></:key>
+                    <:value><%= count %></:value>
+                  </.kvp_entry>
+                <% end %>
+              </.dashboard_card>
+              <.dashboard_card title="Tables Impacted" class="col-span-2"></.dashboard_card>
+            </.dashboard_container>
+          <% else %>
+            <.empty_state icon_name="presentation-chart-line">
+              <:message>
+                No analysis has been run, please click the button below to queue the analysis.
+              </:message>
+              <:action>
+                <button
+                  phx-click="perform-analysis"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs"
+                >
+                  Perform Analysis
+                </button>
+              </:action>
+            </.empty_state>
+          <% end %>
+        </div>
       </:right_section>
     </.two_columns>
+    """
+  end
+
+  def search_form(assigns) do
+    ~H"""
+    <div class="">
+      <form phx-change="search">
+        <.input
+          name="search"
+          value=""
+          label="Search"
+          placeholder="Enter file name to search"
+          autocomplete="off"
+          type="text"
+          phx-debounce={400}
+        />
+      </form>
+    </div>
+    """
+  end
+
+  def cards(assigns) do
+    ~H"""
+    <ul class="my-2 space-y-2">
+      <%= for recording <- @recordings do %>
+        <.card recording={recording} selected_file={@selected_file}></.card>
+      <% end %>
+    </ul>
     """
   end
 
@@ -115,14 +169,14 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     selected_file = assigns.selected_file
 
     card_classes =
-      if recording.file == selected_file.file do
+      if recording.file_name == selected_file.file_name do
         "text-white bg-blue-500 hover:bg-blue-500"
       else
         "bg-gray-800 hover:bg-gray-700"
       end
 
     text_classes =
-      if recording.file == selected_file.file do
+      if recording.file_name == selected_file.file_name do
         "hover:bg-blue-500 text-blue-300"
       else
         "hover:bg-gray-700 text-gray-400"
@@ -133,24 +187,24 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     ~H"""
     <li>
       <div
-        patch={~p"/analytics?#{[file: @recording.file]}"}
-        class={"rounded-sm p-3 flex items-center space-x-2 #{@card_classes}"}
+        patch={~p"/analytics?#{[file_name: @recording.file_name]}"}
+        class={"rounded-sm flex items-center space-x-2 #{@card_classes}"}
       >
         <.link
-          patch={~p"/analytics?#{[file: @recording.file]}"}
-          class="flex-1 whitespace-nowrap font-mono text-xs"
+          patch={~p"/analytics?#{[file_name: @recording.file_name]}"}
+          class="flex-1 p-3 whitespace-nowrap font-mono text-xs"
         >
           <div>
-            <span class="font-semibold"><%= @recording.file %></span>
+            <span class="font-semibold"><%= @recording.file_name %></span>
             <div class={"#{@text_classes} mt-2"}>
               <%= Timex.format!(@recording.creation_time, "{YYYY}-{0M}-{0D} {h24}:{m}:{s}") %>
             </div>
           </div>
         </.link>
         <div
-          class={"rounded flex items-center justify-center #{@text_classes} hover:text-white cursor-pointer"}
+          class={"rounded flex items-center justify-center #{@text_classes} hover:text-white cursor-pointer pr-3"}
           phx-click="delete_recording"
-          phx-value-recording={@recording.file}
+          phx-value-recording={@recording.file_name}
         >
           <Heroicons.icon name="trash" type="mini" class="h-4 w-4" />
         </div>
