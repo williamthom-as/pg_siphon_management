@@ -3,6 +3,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   alias PgSiphonManagement.Recordings
 
+  # TODO: empty states, progress states, error states.
+
   def mount(_params, _session, socket) do
     options = %{
       filter: nil,
@@ -17,7 +19,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
         socket,
         recordings: recordings,
         options: options,
-        page_title: "Analytics"
+        page_title: "Analytics",
+        in_progress: []
       )
 
     {:ok, socket}
@@ -50,6 +53,18 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def render(assigns) do
     ~H"""
+      <%= unless Enum.empty?(@in_progress) do %>
+      <div class="p-4">
+        <.alert_bar type="success">
+          <div class="flex flex-row justify-start items-center space-x-4">
+            <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
+            <span class="font-mono text-xs">
+                There are files currently being processed: <%= Enum.join(@in_progress, ", ") %>
+            </span>
+          </div>
+        </.alert_bar>
+      </div>
+      <% end %>
     <.two_columns>
       <:left_section>
         <div class="w-full rounded-sm shadow font-mono">
@@ -229,5 +244,13 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     recordings = Recordings.list_recordings(socket.assigns.options)
 
     {:noreply, assign(socket, recordings: recordings)}
+  end
+
+  def handle_event("perform-analysis", _params, socket) do
+    file = socket.assigns.selected_file
+
+    PgSiphonManagement.Analysis.Generator.call(file.full_path)
+
+    {:noreply, assign(socket, in_progress: [file.file_name])}
   end
 end
