@@ -27,7 +27,7 @@ config :pg_siphon_management, PgSiphonManagementWeb.Endpoint,
   live_view: [signing_salt: "UvQCsraA"]
 
 config :pg_siphon_management, :export,
-  export_dir: System.user_home() |> Path.join("pg_siphon_management")
+  export_dir: System.user_home() |> Path.join(".pg_siphon_management")
 
 # Configures the mailer
 #

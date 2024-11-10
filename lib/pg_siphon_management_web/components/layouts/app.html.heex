@@ -4,7 +4,7 @@
       <.nav_link
         href={~p"/"}
         tooltip="Proxy"
-        route={:home}
+        route={:proxy}
         current_path={@live_action}
         icon="server-stack"
       >
@@ -17,6 +17,14 @@
         icon="presentation-chart-line"
       >
       </.nav_link>
+      <.nav_link
+        href={~p"/comparison"}
+        tooltip="Comparison"
+        route={:comparison}
+        current_path={@live_action}
+        icon="view-columns"
+      >
+      </.nav_link>
     </:nav_links>
     <:bottom_links></:bottom_links>
   </.sidebar>
@@ -24,28 +32,25 @@
   <div class="flex-1 flex flex-col">
     <.topbar>
       <:left_slot>
-        <span class="text-gray-600 text-xs font-mono">
-          / home
-        </span>
-        <span class="text-gray-600 text-xs font-mono"> / </span>
-        <%= if @live_action == :home do %>
-          <span class="text-gray-300 text-xs font-mono">
-            proxy
+        <div class="overflow-hidden whitespace-nowrap overflow-ellipsis">
+          <span class="text-gray-600 text-xs font-mono">
+            / home
           </span>
-        <% else %>
+          <span class="text-gray-600 text-xs font-mono"> / </span>
           <span class="text-gray-300 text-xs font-mono">
             <%= @live_action %>
           </span>
-        <% end %>
+        </div>
       </:left_slot>
       <:center_slot></:center_slot>
       <:right_slot>
-        <div class="flex justify-end">
-          <div>
-            <.badge colour="blue"><span class="font-mono ">Connected</span></.badge>
+        <div class="flex justify-end space-x-3">
+          <div class="flex items-center">
+            <div class="w-2.5 h-2.5 bg-green-500 rounded-full mr-2 lighthouse"></div>
+            <span class="font-mono text-gray-300">Proxy</span>
           </div>
-          <div>
-            <span class="font-mono text-gray-300 pl-4">
+          <div class="border-l border-gray-700">
+            <span class="font-mono text-gray-300 pl-3">
               Help
             </span>
           </div>

@@ -15,6 +15,15 @@ module.exports = {
     {
       pattern: /bg-(red|green|blue|yellow|purple|pink|indigo|gray|black|white|teal|orange|amber|lime|emerald|cyan|sky|violet|fuchsia|rose)-500/,
     },
+    {
+      pattern: /from-(red|green|blue|yellow|purple|pink|indigo|gray|black|white|teal|orange|amber|lime|emerald|cyan|sky|violet|fuchsia|rose)-500/,
+    },
+    {
+      pattern: /to-(red|green|blue|yellow|purple|pink|indigo|gray|black|white|teal|orange|amber|lime|emerald|cyan|sky|violet|fuchsia|rose)-600/,
+    },
+    {
+      pattern: /to-(red|green|blue|yellow|purple|pink|indigo|gray|black|white|teal|orange|amber|lime|emerald|cyan|sky|violet|fuchsia|rose)-700/,
+    },
   ],
 theme: {
     extend: {

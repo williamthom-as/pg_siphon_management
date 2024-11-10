@@ -61,7 +61,9 @@ defmodule PgSiphonManagement.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:dart_sass, "~> 0.7", runtime: Mix.env() == :dev},
-      {:pg_siphon, path: "../pg_siphon"}
+      {:pg_siphon, path: "../pg_siphon"},
+      {:csv, "~> 3.2"},
+      {:timex, "~> 3.7"}
     ]
   end
 

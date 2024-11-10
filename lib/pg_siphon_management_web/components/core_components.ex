@@ -232,6 +232,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
       type={@type}
       class={[
         "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 py-1 px-2",
+        "hover:text-blue-200",
         "text-xs font-semibold leading-6 text-blue-500 active:text-white/80",
         @class
       ]}

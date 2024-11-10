@@ -100,7 +100,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
       <div class="w-full md:w-1/3 md:max-w-lg bg-gray-900 text-gray-200 p-3">
         <%= render_slot(@left_section) %>
       </div>
-      <div class="w-full md:w-2/3 bg-gray-900/70 p-3 flex-grow">
+      <div class="w-full md:w-2/3 bg-gray-800/30 p-3 flex-grow">
         <%= render_slot(@right_section) %>
       </div>
     </div>
@@ -221,6 +221,85 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
     <div class="flex justify-between items-center mb-2">
       <span class="text-gray-400 text-xs"><%= render_slot(@key) %></span>
       <span class="text-gray-300"><%= render_slot(@value) %></span>
+    </div>
+    """
+  end
+
+  slot :title, required: true
+  slot :sub_title, required: true
+  slot :left_section, required: true
+
+  def internal_header(assigns) do
+    ~H"""
+    <section class="flex bg-gray-900">
+      <div class="w-full mx-auto">
+        <div class="relative overflow-hidden bg-gray-800 rounded-sm">
+          <div class="flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
+            <div>
+              <h4 class="mr-3 font-semibold text-gray-200">
+                <%= render_slot(@title) %>
+              </h4>
+              <p class="text-gray-400 text-xs">
+                <%= render_slot(@sub_title) %>
+              </p>
+            </div>
+            <div class="flex flex-row items-center space-x-4">
+              <%= render_slot(@left_section) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    """
+  end
+
+  attr :icon_name, :string, required: true
+  attr :alert_message, :string, default: "Hold up!"
+  slot :message, required: true
+  slot :action, required: false
+
+  def empty_state(assigns) do
+    ~H"""
+    <div class="flex flex-col items-center justify-center text-gray-400 mt-4 p-16 bg-transparent rounded font-mono">
+      <div class="flex flex-col items-center justify-center">
+        <Heroicons.icon name={@icon_name} type="outline" class="h-20 w-20 mb-4 text-gray-500" />
+        <p class="mb-2 font-semibold text-gray-300 text-lg">
+          <%= @alert_message %>
+        </p>
+        <p class="mb-4 text-xs text-gray-300">
+          <%= render_slot(@message) %>
+        </p>
+        <%= render_slot(@action) %>
+      </div>
+    </div>
+    """
+  end
+
+  def dashboard_container(assigns) do
+    ~H"""
+    <div class="overflow-x-auto mb-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
+  attr :title, :string, required: true
+  attr :class, :string, default: nil
+  slot :inner_block, required: true
+
+  def dashboard_card(assigns) do
+    ~H"""
+    <div class={["bg-gray-800 shadow-md rounded-sm", @class]}>
+      <div class="bg-gray-700 px-4 py-2 rounded-t-sm">
+        <h2 class="text-xs text-gray-400 font-mono">
+          <%= @title %>
+        </h2>
+      </div>
+      <div class="bg-gray-800 p-4 rounded-b-lg">
+        <%= render_slot(@inner_block) %>
+      </div>
     </div>
     """
   end

@@ -13,6 +13,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
     end
 
     %{recording: recording} = :sys.get_state(:query_server)
+    %{recording: file_recording} = :sys.get_state(:file_exporter_service)
     %{filter_message_types: filter_message_types} = :sys.get_state(:monitoring_server)
     proxy_config = :sys.get_state(:proxy_server)
     active_connections = ActiveConnectionsServer.get_active_connections()
@@ -22,16 +23,30 @@ defmodule PgSiphonManagementWeb.StatusLive do
       |> stream(:messages, [])
       |> assign(counter: 0)
       |> assign(recording: recording)
+      |> assign(file_recording: file_recording)
       |> assign(proxy_config: proxy_config)
       |> assign(filter_message_types: filter_message_types)
       |> assign(active_connections: active_connections)
       |> assign(accordion_open: %{"monitoring_settings" => true, "active_connections" => false})
+      |> assign(page_title: "Proxy")
 
     {:ok, socket}
   end
 
   def render(assigns) do
     ~H"""
+    <%= if @file_recording do %>
+      <div class="p-3">
+        <.alert_bar type="danger">
+          <div class="flex flex-row justify-start items-center space-x-4">
+            <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
+            <span class="font-mono text-xs">
+              Recording in progress...
+            </span>
+          </div>
+        </.alert_bar>
+      </div>
+    <% end %>
     <.two_columns>
       <:left_section>
         <.accordion_container id="accordion-status-page">
@@ -73,7 +88,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
           </.accordion_entry>
           <.accordion_entry title="Monitoring Settings" open={@accordion_open["monitoring_settings"]}>
             <.kvp_container
-              title="Message Types"
+              title="Message Types (Front End)"
               tooltip="If no types are selected, all message frame types are displayed."
             >
               <div class="text-gray-600 text-xs mb-2">
@@ -205,6 +220,11 @@ defmodule PgSiphonManagementWeb.StatusLive do
           {:noreply, Phoenix.LiveView.Socket.t()}
   def handle_info({:message_types_changed, types}, socket) do
     {:noreply, assign(socket, filter_message_types: types)}
+  end
+
+  def handle_info({:start_export, %{file_name: file_name}}, socket) do
+    IO.puts("here 2!")
+    {:noreply, assign(socket, file_recording: true, file_name: file_name)}
   end
 
   @spec handle_overflow(Phoenix.LiveView.Socket.t(), non_neg_integer()) ::

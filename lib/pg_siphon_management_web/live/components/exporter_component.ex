@@ -4,6 +4,8 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
   alias PgSiphonManagement.Persistence.FileExportRequest
   alias PgSiphonManagement.Persistence.FileExporterService
 
+  alias Phoenix.PubSub
+
   def mount(socket) do
     {_, changeset} = FileExportRequest.create(%{})
 
@@ -22,7 +24,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
       <%= if @file_recording do %>
         <.alert_bar type="success">
           <span class="font-mono text-xs">
-            Recording in progress to '<%= Path.join(@root_dir, @file_name) %>'
+            Recording in progress to '<%= Path.join(@root_dir, @file_name <> ".raw.csv") %>'
           </span>
         </.alert_bar>
         <div class="mt-4">
@@ -30,7 +32,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
             phx-click="stop"
             phx-target={@myself}
             phx-disable-with="Stopping ..."
-            class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs"
+            class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs"
           >
             Stop Recording
           </.button>
@@ -39,7 +41,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
         <h3 class="text-gray-300 text-sm mb-2">Export to file</h3>
         <div class="text-gray-600 text-xs mb-4">
           <span class="font-semibold">Note:</span>
-          File will be exported to dir: <span class="underline text-gray-500"><%= @root_dir %></span>
+          File will be exported to dir: <span class="underline text-gray-600"><%= @root_dir %></span>
         </div>
         <.form for={@form} id="file-export-form" phx-submit="submit" phx-target={@myself}>
           <.input
@@ -79,11 +81,12 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
       {:ok, _new_request} ->
         {_, new_changeset} = FileExportRequest.create(%{})
 
-        socket = put_flash(socket, :info, "Triggered successfully!")
+        PubSub.broadcast(
+          PgSiphonManagement.PubSub,
+          "file_export",
+          {:start_export, %{file_name: file_name}}
+        )
 
-        # trigger FileExporterService impl todo.
-
-        # IO.puts(file_path)
         FileExporterService.start(file_name)
 
         %{recording: file_recording, file_name: file_name} =
@@ -109,7 +112,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
     %{recording: file_recording, file_name: file_name} =
       :sys.get_state(:file_exporter_service)
 
-    socket = put_flash(socket, :info, "#{status} #{msg}")
+    # Notify pubsub to remove banner
 
     {:noreply,
      socket
