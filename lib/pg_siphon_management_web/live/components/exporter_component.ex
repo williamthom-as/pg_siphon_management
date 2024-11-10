@@ -112,7 +112,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
     %{recording: file_recording, file_name: file_name} =
       :sys.get_state(:file_exporter_service)
 
-    socket = put_flash(socket, :info, "#{status} #{msg}")
+    # Notify pubsub to remove banner
 
     {:noreply,
      socket

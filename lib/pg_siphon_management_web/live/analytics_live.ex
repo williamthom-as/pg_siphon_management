@@ -2,17 +2,23 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   use PgSiphonManagementWeb, :live_view
 
   alias PgSiphonManagement.Recordings
+  alias Phoenix.PubSub
 
-  # TODO: empty states, progress states, error states.
+  # TODO: empty states, progress states.
 
   def mount(_params, _session, socket) do
+    PubSub.subscribe(PgSiphonManagement.PubSub, "analysis")
+    PubSub.subscribe(PgSiphonManagement.PubSub, "recording")
+
     options = %{
       filter: nil,
       offset: 0,
       max: 10
     }
-
     recordings = Recordings.list_recordings(options)
+
+    %{recording: recording} =
+      :sys.get_state(:file_exporter_service)
 
     socket =
       assign(
@@ -20,7 +26,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
         recordings: recordings,
         options: options,
         page_title: "Analytics",
-        in_progress: []
+        in_progress: [],
+        recording: recording
       )
 
     {:ok, socket}
@@ -41,7 +48,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def handle_params(%{}, _uri, socket) do
     selected_file = List.first(socket.assigns.recordings)
-    analysis = if selected_file do
+
+    {_, analysis} = if selected_file do
       Recordings.get_analysis(selected_file.file_name)
     else
       nil
@@ -58,8 +66,20 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def render(assigns) do
     ~H"""
-      <%= unless Enum.empty?(@in_progress) do %>
-      <div class="p-4">
+    <%= if @recording do %>
+      <div class="p-3">
+        <.alert_bar type="danger">
+          <div class="flex flex-row justify-start items-center space-x-4">
+            <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
+            <span class="font-mono text-xs">
+              Recording in progress...
+            </span>
+          </div>
+        </.alert_bar>
+      </div>
+    <% end %>
+    <%= unless Enum.empty?(@in_progress) do %>
+      <div class="p-3">
         <.alert_bar type="success">
           <div class="flex flex-row justify-start items-center space-x-4">
             <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
@@ -69,7 +89,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
           </div>
         </.alert_bar>
       </div>
-      <% end %>
+    <% end %>
     <.two_columns>
       <:left_section>
         <div class="w-full rounded-sm shadow font-mono">
@@ -99,7 +119,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                 <% end %>
               </div>
               <div>
-                <.button phx-click="perform-analysis">Perform Analysis</.button>
+                <.button phx-click="perform_analysis">Perform Analysis</.button>
               </div>
             </:left_section>
           </.internal_header>
@@ -143,7 +163,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                 </:message>
                 <:action>
                   <button
-                    phx-click="perform-analysis"
+                    phx-click="perform_analysis"
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs"
                   >
                     Perform Analysis
@@ -158,7 +178,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
               <div class="mb-4">Select a recording to view its analysis.</div>
               <div class="mb-2 text-xs">
                 If you don't have any, you can start a recording
-                <.link patch={~p"/proxy"} class="text-blue-500 underline">here</.link>.
+                <.link patch={~p"/"} class="text-blue-500 underline">here</.link>.
               </div>
 
             </:message>
@@ -264,11 +284,49 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     {:noreply, assign(socket, recordings: recordings)}
   end
 
-  def handle_event("perform-analysis", _params, socket) do
+  def handle_event("perform_analysis", _params, socket) do
     file = socket.assigns.selected_file
 
     PgSiphonManagement.Analysis.Generator.call(file.full_path)
 
     {:noreply, assign(socket, in_progress: [file.file_name], analysis: nil)}
+  end
+
+  # Analysis has finished
+  def handle_info({:complete, %{full_path: full_path}}, socket) do
+    file_name = Path.basename(full_path)
+
+    selected_file = Recordings.get_recording(file_name)
+    {_, analysis} = Recordings.get_analysis(file_name)
+
+    {:noreply,
+     assign(
+       socket,
+       selected_file: selected_file,
+       analysis: analysis,
+       in_progress: List.delete(socket.assigns.in_progress, file_name)
+     )}
+  end
+
+  # Recording has started
+  def handle_info({:start, %{file_name: file_name}}, socket) do
+    IO.puts("Recording has started: #{file_name}")
+
+    {:noreply,
+      assign(
+        socket,
+        recording: true
+    )}
+  end
+
+  # Recording has finished
+  def handle_info({:finish, %{file_name: file_name}}, socket) do
+    IO.puts("Recording has finished: #{file_name}")
+
+    {:noreply,
+    assign(
+      socket,
+        recording: false
+    )}
   end
 end

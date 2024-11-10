@@ -50,6 +50,8 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
     {:ok, file} = File.open(file_path, [:write])
     PubSub.subscribe(:broadcaster, @pubsub_topic)
 
+    notify_external(:start, state.file_name)
+
     {:reply, {:ok, :started},
      %{state | recording: true, current_file: file, file_name: file_name}}
   end
@@ -63,6 +65,8 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
 
     File.close(state.current_file)
     PubSub.unsubscribe(:broadcaster, @pubsub_topic)
+
+    notify_external(:finish, state.file_name)
 
     {:reply, {:ok, :stopped}, %{state | recording: false, current_file: nil, file_name: nil}}
   end
@@ -92,5 +96,13 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
 
   def handle_info({@pubsub_topic, _message}, state) do
     {:noreply, state}
+  end
+
+  defp notify_external(status, file_name) do
+    PubSub.broadcast(
+      PgSiphonManagement.PubSub,
+      "recording",
+      {status, %{file_name: file_name}}
+    )
   end
 end

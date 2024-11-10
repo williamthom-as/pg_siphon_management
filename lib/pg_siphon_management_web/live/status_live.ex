@@ -13,6 +13,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
     end
 
     %{recording: recording} = :sys.get_state(:query_server)
+    %{recording: file_recording} = :sys.get_state(:file_exporter_service)
     %{filter_message_types: filter_message_types} = :sys.get_state(:monitoring_server)
     proxy_config = :sys.get_state(:proxy_server)
     active_connections = ActiveConnectionsServer.get_active_connections()
@@ -22,6 +23,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
       |> stream(:messages, [])
       |> assign(counter: 0)
       |> assign(recording: recording)
+      |> assign(file_recording: file_recording)
       |> assign(proxy_config: proxy_config)
       |> assign(filter_message_types: filter_message_types)
       |> assign(active_connections: active_connections)
@@ -33,6 +35,18 @@ defmodule PgSiphonManagementWeb.StatusLive do
 
   def render(assigns) do
     ~H"""
+    <%= if @file_recording do %>
+      <div class="p-3">
+        <.alert_bar type="danger">
+          <div class="flex flex-row justify-start items-center space-x-4">
+            <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
+            <span class="font-mono text-xs">
+              Recording in progress...
+            </span>
+          </div>
+        </.alert_bar>
+      </div>
+    <% end %>
     <.two_columns>
       <:left_section>
         <.accordion_container id="accordion-status-page">
