@@ -40,8 +40,13 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   end
 
   def handle_params(%{}, _uri, socket) do
-    selected_file = hd(socket.assigns.recordings)
-    {_, analysis} = Recordings.get_analysis(selected_file.file_name)
+    selected_file = List.first(socket.assigns.recordings)
+    analysis = if selected_file do
+      Recordings.get_analysis(selected_file.file_name)
+    else
+      nil
+    end
+
 
     {:noreply,
      assign(
@@ -76,76 +81,89 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
         </div>
       </:left_section>
       <:right_section>
-        <.internal_header>
-          <:title>
-            Recording Analysis for '<%= @selected_file.file_name %>'
-          </:title>
-          <:sub_title>
-            Created at <%= Timex.format!(
-              @selected_file.creation_time,
-              "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"
-            ) %>
-          </:sub_title>
-          <:left_section>
-            <div class="font-mono text-xs text-gray-500 italic">
-              <%= unless @selected_file.has_analysis do %>
-                No analysis has been performed yet.
-              <% end %>
-            </div>
-            <div>
-              <.button phx-click="perform-analysis">Perform Analysis</.button>
-            </div>
-          </:left_section>
-        </.internal_header>
-        <div class="text-gray-600 mt-4">
-          <%= if @analysis do %>
-            <.dashboard_container>
-              <.dashboard_card title="Total Count of Messages">
-                <div class="text-md text-gray-200">
-                  <%= @analysis.content["total_count"] %>
-                </div>
-              </.dashboard_card>
-              <.dashboard_card title="Duration">
-                <div class="text-md text-gray-200">-</div>
-              </.dashboard_card>
-              <.dashboard_card title="Start Time">
-                <div class="text-md text-gray-200">-</div>
-              </.dashboard_card>
-              <.dashboard_card title="Finish Time">
-                <div class="text-md text-gray-200">-</div>
-              </.dashboard_card>
-            </.dashboard_container>
-            <.dashboard_container>
-              <.dashboard_card title="Total Count of Messages" class="col-span-2">
-                <.kvp_entry>
-                  <:key></:key>
-                  <:value>Count</:value>
-                </.kvp_entry>
-                <%= for {type, count} <- @analysis.content["message_type_count"] do %>
-                  <.kvp_entry>
-                    <:key><%= type %></:key>
-                    <:value><%= count %></:value>
-                  </.kvp_entry>
+        <%= if @selected_file do %>
+          <.internal_header>
+            <:title>
+              Recording Analysis for '<%= @selected_file.file_name %>'
+            </:title>
+            <:sub_title>
+              Created at <%= Timex.format!(
+                @selected_file.creation_time,
+                "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"
+              ) %>
+            </:sub_title>
+            <:left_section>
+              <div class="font-mono text-xs text-gray-500 italic">
+                <%= unless @selected_file.has_analysis do %>
+                  No analysis has been performed yet.
                 <% end %>
-              </.dashboard_card>
-              <.dashboard_card title="Tables Impacted" class="col-span-2"></.dashboard_card>
-            </.dashboard_container>
-          <% else %>
-            <.empty_state icon_name="presentation-chart-line">
-              <:message>
-                No analysis has been run, please click the button below to queue the analysis.
-              </:message>
-              <:action>
-                <button
-                  phx-click="perform-analysis"
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs"
-                >
-                  Perform Analysis
-                </button>
-              </:action>
-            </.empty_state>
-          <% end %>
-        </div>
+              </div>
+              <div>
+                <.button phx-click="perform-analysis">Perform Analysis</.button>
+              </div>
+            </:left_section>
+          </.internal_header>
+          <div class="text-gray-600 mt-4">
+            <%= if @analysis do %>
+              <.dashboard_container>
+                <.dashboard_card title="Total Count of Messages">
+                  <div class="text-md text-gray-200">
+                    <%= @analysis.content["total_count"] %>
+                  </div>
+                </.dashboard_card>
+                <.dashboard_card title="Duration">
+                  <div class="text-md text-gray-200">-</div>
+                </.dashboard_card>
+                <.dashboard_card title="Start Time">
+                  <div class="text-md text-gray-200">-</div>
+                </.dashboard_card>
+                <.dashboard_card title="Finish Time">
+                  <div class="text-md text-gray-200">-</div>
+                </.dashboard_card>
+              </.dashboard_container>
+              <.dashboard_container>
+                <.dashboard_card title="Total Count of Messages" class="col-span-2">
+                  <.kvp_entry>
+                    <:key></:key>
+                    <:value>Count</:value>
+                  </.kvp_entry>
+                  <%= for {type, count} <- @analysis.content["message_type_count"] do %>
+                    <.kvp_entry>
+                      <:key><%= type %></:key>
+                      <:value><%= count %></:value>
+                    </.kvp_entry>
+                  <% end %>
+                </.dashboard_card>
+                <.dashboard_card title="Tables Impacted" class="col-span-2"></.dashboard_card>
+              </.dashboard_container>
+            <% else %>
+              <.empty_state icon_name="presentation-chart-line">
+                <:message>
+                  No analysis has been run, please click the button below to queue the analysis.
+                </:message>
+                <:action>
+                  <button
+                    phx-click="perform-analysis"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs"
+                  >
+                    Perform Analysis
+                  </button>
+                </:action>
+              </.empty_state>
+            <% end %>
+          </div>
+        <% else %>
+          <.empty_state icon_name="document-magnifying-glass">
+            <:message>
+              <div class="mb-4">Select a recording to view its analysis.</div>
+              <div class="mb-2 text-xs">
+                If you don't have any, you can start a recording
+                <.link patch={~p"/proxy"} class="text-blue-500 underline">here</.link>.
+              </div>
+
+            </:message>
+          </.empty_state>
+        <% end %>
       </:right_section>
     </.two_columns>
     """
@@ -251,6 +269,6 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
     PgSiphonManagement.Analysis.Generator.call(file.full_path)
 
-    {:noreply, assign(socket, in_progress: [file.file_name])}
+    {:noreply, assign(socket, in_progress: [file.file_name], analysis: nil)}
   end
 end
