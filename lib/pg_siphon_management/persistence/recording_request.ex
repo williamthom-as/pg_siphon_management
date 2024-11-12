@@ -1,4 +1,4 @@
-defmodule PgSiphonManagement.Persistence.FileExportRequest do
+defmodule PgSiphonManagement.Persistence.RecordingRequest do
   use Ecto.Schema
 
   import Ecto.Changeset
@@ -8,8 +8,8 @@ defmodule PgSiphonManagement.Persistence.FileExportRequest do
     field :file_format, :string
   end
 
-  def changeset(file_export_request, attrs) do
-    file_export_request
+  def changeset(request, attrs) do
+    request
     |> cast(attrs, [:file_name, :file_format])
     |> validate_required([:file_name, :file_format])
   end

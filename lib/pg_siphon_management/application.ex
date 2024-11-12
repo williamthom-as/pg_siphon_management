@@ -23,7 +23,7 @@ defmodule PgSiphonManagement.Application do
       # {PgSiphonManagement.Worker, arg},
       # Start to serve requests, typically the last entry
       PgSiphonManagementWeb.Endpoint,
-      PgSiphonManagement.Persistence.FileExporterService
+      PgSiphonManagement.Persistence.RecordingServer
     ]
 
     {:ok, msg} =

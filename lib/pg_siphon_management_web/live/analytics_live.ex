@@ -4,21 +4,24 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   alias PgSiphonManagement.Recordings
   alias Phoenix.PubSub
 
-  # TODO: empty states, progress states.
-
   def mount(_params, _session, socket) do
-    PubSub.subscribe(PgSiphonManagement.PubSub, "analysis")
-    PubSub.subscribe(PgSiphonManagement.PubSub, "recording")
+    if connected?(socket) do
+      PubSub.subscribe(PgSiphonManagement.PubSub, "analysis")
+      PubSub.subscribe(PgSiphonManagement.PubSub, "recording")
+    end
 
     options = %{
       filter: nil,
       offset: 0,
       max: 10
     }
+
+    # Recordings needs to do more lifting, returning simple structs to be updated.
+    # These should hold - is being recorded, is in progress, has analysis.
     recordings = Recordings.list_recordings(options)
 
-    %{recording: recording} =
-      :sys.get_state(:file_exporter_service)
+    %{recording: recording, file_name: recording_file_name} =
+      :sys.get_state(:recording_server)
 
     socket =
       assign(
@@ -27,7 +30,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
         options: options,
         page_title: "Analytics",
         in_progress: [],
-        recording: recording
+        recording: recording,
+        recording_file_name: (recording_file_name || "") <> ".raw.csv"
       )
 
     {:ok, socket}
@@ -35,7 +39,6 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def handle_params(%{"file_name" => file_name}, _uri, socket) do
     selected_file = Recordings.get_recording(file_name)
-
     {_, analysis} = Recordings.get_analysis(file_name)
 
     {:noreply,
@@ -47,14 +50,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   end
 
   def handle_params(%{}, _uri, socket) do
-    selected_file = List.first(socket.assigns.recordings)
-
-    {_, analysis} = if selected_file do
-      Recordings.get_analysis(selected_file.file_name)
-    else
-      nil
-    end
-
+    {selected_file, analysis} = get_first_selected_file(socket)
 
     {:noreply,
      assign(
@@ -66,30 +62,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def render(assigns) do
     ~H"""
-    <%= if @recording do %>
-      <div class="p-3">
-        <.alert_bar type="danger">
-          <div class="flex flex-row justify-start items-center space-x-4">
-            <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
-            <span class="font-mono text-xs">
-              Recording in progress...
-            </span>
-          </div>
-        </.alert_bar>
-      </div>
-    <% end %>
-    <%= unless Enum.empty?(@in_progress) do %>
-      <div class="p-3">
-        <.alert_bar type="success">
-          <div class="flex flex-row justify-start items-center space-x-4">
-            <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
-            <span class="font-mono text-xs">
-                There are files currently being processed: <%= Enum.join(@in_progress, ", ") %>
-            </span>
-          </div>
-        </.alert_bar>
-      </div>
-    <% end %>
+    <.alerts recording={@recording} in_progress={@in_progress}></.alerts>
     <.two_columns>
       <:left_section>
         <div class="w-full rounded-sm shadow font-mono">
@@ -97,7 +70,12 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
             Recorded Logs
           </h5>
           <.search_form></.search_form>
-          <.cards recordings={@recordings} selected_file={@selected_file}></.cards>
+          <.cards
+            recordings={@recordings}
+            selected_file={@selected_file}
+            recording_file_name={@recording_file_name}
+          >
+          </.cards>
         </div>
       </:left_section>
       <:right_section>
@@ -177,10 +155,11 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
             <:message>
               <div class="mb-4">Select a recording to view its analysis.</div>
               <div class="mb-2 text-xs">
-                If you don't have any, you can start a recording
-                <.link patch={~p"/"} class="text-blue-500 underline">here</.link>.
+                If you don't have any, you can start a recording <.link
+                  patch={~p"/"}
+                  class="text-blue-500 underline"
+                >here</.link>.
               </div>
-
             </:message>
           </.empty_state>
         <% end %>
@@ -210,8 +189,23 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   def cards(assigns) do
     ~H"""
     <ul class="my-2 space-y-2">
-      <%= for recording <- @recordings do %>
-        <.card recording={recording} selected_file={@selected_file}></.card>
+      <%= if Enum.empty?(@recordings) do %>
+        <.empty_state
+          icon_name="document-magnifying-glass"
+          alert_message="No recordings found."
+          text_size="text-sm"
+        >
+          <:message>&nbsp;</:message>
+        </.empty_state>
+      <% else %>
+        <%= for recording <- @recordings do %>
+          <.card
+            recording={recording}
+            selected_file={@selected_file}
+            recording_file_name={@recording_file_name}
+          >
+          </.card>
+        <% end %>
       <% end %>
     </ul>
     """
@@ -220,6 +214,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   def card(assigns) do
     recording = assigns.recording
     selected_file = assigns.selected_file
+
+    is_in_progress = assigns.recording_file_name == recording.file_name
 
     card_classes =
       if recording.file_name == selected_file.file_name do
@@ -235,7 +231,12 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
         "hover:bg-gray-700 text-gray-400"
       end
 
-    assigns = assign(assigns, card_classes: card_classes, text_classes: text_classes)
+    assigns =
+      assign(assigns,
+        card_classes: card_classes,
+        text_classes: text_classes,
+        is_in_progress: is_in_progress
+      )
 
     ~H"""
     <li>
@@ -254,21 +255,56 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
             </div>
           </div>
         </.link>
-        <div
-          class={"rounded flex items-center justify-center #{@text_classes} hover:text-white cursor-pointer pr-3"}
-          phx-click="delete_recording"
-          phx-value-recording={@recording.file_name}
-        >
-          <Heroicons.icon name="trash" type="mini" class="h-4 w-4" />
-        </div>
-        <%!-- <span class="inline-flex items-center justify-center px-2 py-0.5 ms-3 text-xs font-medium rounded bg-green-500 text-white">
-          Ready
-        </span> --%>
+        <%= if @is_in_progress do %>
+          <div class="text-xs p-3">
+            <.badge colour="red">
+              <span class="font-mono text-xs">Recording</span>
+            </.badge>
+          </div>
+        <% else %>
+          <div
+            class={"rounded flex items-center justify-center #{@text_classes} hover:text-white cursor-pointer pr-3"}
+            phx-click="delete_recording"
+            phx-value-file_name={@recording.file_name}
+          >
+            <Heroicons.icon name="trash" type="mini" class="h-4 w-4" />
+          </div>
+        <% end %>
       </div>
     </li>
     """
   end
 
+  def alerts(assigns) do
+    ~H"""
+    <%= if @recording do %>
+      <div class="p-3">
+        <.alert_bar type="danger">
+          <div class="flex flex-row justify-start items-center space-x-4">
+            <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
+            <span class="font-mono text-xs">
+              Recording in progress...
+            </span>
+          </div>
+        </.alert_bar>
+      </div>
+    <% end %>
+    <%= unless Enum.empty?(@in_progress) do %>
+      <div class="p-3">
+        <.alert_bar type="success">
+          <div class="flex flex-row justify-start items-center space-x-4">
+            <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
+            <span class="font-mono text-xs">
+              There are files currently being processed: <%= Enum.join(@in_progress, ", ") %>
+            </span>
+          </div>
+        </.alert_bar>
+      </div>
+    <% end %>
+    """
+  end
+
+  # Searching for recording
   def handle_event("search", %{"search" => search_param}, socket) do
     options = %{socket.assigns.options | filter: search_param}
     recordings = Recordings.list_recordings(options)
@@ -276,14 +312,22 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     {:noreply, assign(socket, recordings: recordings, options: options)}
   end
 
-  def handle_event("delete_recording", %{"recording" => recording}, socket) do
-    Recordings.delete_recording(recording)
+  # Button to delete recording
+  def handle_event("delete_recording", %{"file_name" => file_name}, socket) do
+    Recordings.delete_recording(file_name)
 
-    recordings = Recordings.list_recordings(socket.assigns.options)
+    {selected_file, analysis} = get_first_selected_file(socket)
 
-    {:noreply, assign(socket, recordings: recordings)}
+    {:noreply,
+     assign(
+       socket,
+       recordings: Recordings.list_recordings(socket.assigns.options),
+       selected_file: selected_file,
+       analysis: analysis
+     )}
   end
 
+  # Button to trigger analysis
   def handle_event("perform_analysis", _params, socket) do
     file = socket.assigns.selected_file
 
@@ -313,10 +357,11 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     IO.puts("Recording has started: #{file_name}")
 
     {:noreply,
-      assign(
-        socket,
-        recording: true
-    )}
+     assign(
+       socket,
+       recording: true,
+       recording_file_name: file_name
+     )}
   end
 
   # Recording has finished
@@ -324,9 +369,26 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     IO.puts("Recording has finished: #{file_name}")
 
     {:noreply,
-    assign(
-      socket,
-        recording: false
-    )}
+     assign(
+       socket,
+       recording: false,
+       recording_file_name: nil
+     )}
+  end
+
+  # impl
+  defp get_first_selected_file(socket) do
+    selected_file =
+      Enum.find(socket.assigns.recordings, fn recording ->
+        recording.file_name != socket.assigns.recording_file_name
+      end)
+
+    {_, analysis} =
+      case selected_file do
+        nil -> {nil, nil}
+        _ -> Recordings.get_analysis(selected_file.file_name)
+      end
+
+    {selected_file, analysis}
   end
 end

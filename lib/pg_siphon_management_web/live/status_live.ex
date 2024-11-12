@@ -6,15 +6,18 @@ defmodule PgSiphonManagementWeb.StatusLive do
   alias PgSiphonManagementWeb.ActiveConnectionsComponent
   alias PgSiphonManagementWeb.ExporterComponent
   alias PgSiphon.ActiveConnectionsServer
+  alias Phoenix.PubSub
 
   def mount(_params, _session, socket) do
     if connected?(socket) do
-      Phoenix.PubSub.subscribe(:broadcaster, "message_frames")
+      PubSub.subscribe(:broadcaster, "message_frames")
+      PubSub.subscribe(PgSiphonManagement.PubSub, "recording")
     end
 
     %{recording: recording} = :sys.get_state(:query_server)
-    %{recording: file_recording} = :sys.get_state(:file_exporter_service)
+    %{recording: file_recording} = :sys.get_state(:recording_server)
     %{filter_message_types: filter_message_types} = :sys.get_state(:monitoring_server)
+
     proxy_config = :sys.get_state(:proxy_server)
     active_connections = ActiveConnectionsServer.get_active_connections()
 
@@ -223,8 +226,24 @@ defmodule PgSiphonManagementWeb.StatusLive do
   end
 
   def handle_info({:start_export, %{file_name: file_name}}, socket) do
-    IO.puts("here 2!")
     {:noreply, assign(socket, file_recording: true, file_name: file_name)}
+  end
+
+  # Recording has started
+  def handle_info({:start, %{file_name: file_name}}, socket) do
+    {:noreply, assign(socket, file_recording: true, file_name: file_name)}
+  end
+
+  # Recording has finished
+  def handle_info({:finish, %{file_name: file_name}}, socket) do
+    IO.puts("Recording has finished: #{file_name}")
+
+    {:noreply,
+     assign(
+       socket,
+       file_recording: false,
+       file_name: nil
+     )}
   end
 
   @spec handle_overflow(Phoenix.LiveView.Socket.t(), non_neg_integer()) ::

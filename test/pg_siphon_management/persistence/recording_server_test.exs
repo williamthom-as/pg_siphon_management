@@ -1,7 +1,7 @@
-defmodule PgSiphonManagement.Persistence.FileExporterServiceTest do
+defmodule PgSiphonManagement.Persistence.RecordingServerTest do
   use ExUnit.Case, async: true
 
-  alias PgSiphonManagement.Persistence.FileExporterService
+  alias PgSiphonManagement.Persistence.RecordingServer
   alias Phoenix.PubSub
 
   @pubsub_name :broadcaster
@@ -10,9 +10,9 @@ defmodule PgSiphonManagement.Persistence.FileExporterServiceTest do
   @file_path "test.log"
 
   test "writes messages to the file" do
-    assert {:ok, :started} == FileExporterService.start(@file_path)
+    assert {:ok, :started} == RecordingServer.start(@file_path)
     # check cant start twice
-    {:error, :already_started_export} == FileExporterService.start(@file_path)
+    {:error, :already_started_export} == RecordingServer.start(@file_path)
 
     # send msg
     PubSub.broadcast(@pubsub_name, @pubsub_topic, {:notify, "test message 1"})
@@ -21,8 +21,8 @@ defmodule PgSiphonManagement.Persistence.FileExporterServiceTest do
     # wait for a bit
     :timer.sleep(100)
 
-    assert {:ok, :stopped} == FileExporterService.stop()
-    assert {:error, :not_started} == FileExporterService.stop()
+    assert {:ok, :stopped} == RecordingServer.stop()
+    assert {:error, :not_started} == RecordingServer.stop()
 
     {:ok, content} = File.read(@file_path)
     assert content =~ "test message 1\ntest message 2\n"

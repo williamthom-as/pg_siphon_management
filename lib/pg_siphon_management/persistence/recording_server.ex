@@ -1,11 +1,11 @@
-defmodule PgSiphonManagement.Persistence.FileExporterService do
+defmodule PgSiphonManagement.Persistence.RecordingServer do
   use GenServer
 
   require Logger
 
   alias Phoenix.PubSub
 
-  @name :file_exporter_service
+  @name :recording_server
   @pubsub_topic "message_frames"
 
   defmodule State do
@@ -15,7 +15,7 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
   # Client API
 
   def start_link(_) do
-    Logger.info("Starting File Exporter Service...")
+    Logger.info("Starting recording server...")
 
     GenServer.start_link(__MODULE__, %State{}, name: @name)
   end
@@ -76,12 +76,13 @@ defmodule PgSiphonManagement.Persistence.FileExporterService do
   end
 
   def handle_info(
-        {:new_message_frame, %{type: type, payload: payload}},
+        {:new_message_frame, %{type: type, payload: payload, time: time}},
         %{recording: true} = state
       ) do
-    # we will handle different types here
+    escaped_payload = String.replace(payload, "\n", "")
+
     csv_row =
-      [[type, payload]]
+      [[type, escaped_payload, time]]
       |> CSV.encode()
       |> Enum.join()
 

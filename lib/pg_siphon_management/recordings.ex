@@ -44,15 +44,20 @@ defmodule PgSiphonManagement.Recordings do
 
   def get_recording(file_name) do
     full_path = expand_file_name(file_name)
-    {:ok, stat} = File.stat(full_path)
 
-    %{
-      file_name: file_name,
-      full_path: full_path,
-      creation_time: stat.ctime,
-      has_analysis: has_analysis?(file_name),
-      size: stat.size
-    }
+    case File.stat(full_path) do
+      {:ok, stat} ->
+        %{
+          file_name: file_name,
+          full_path: full_path,
+          creation_time: stat.ctime,
+          has_analysis: has_analysis?(file_name),
+          size: stat.size
+        }
+
+      {:error, _reason} ->
+        nil
+    end
   end
 
   @doc """
@@ -64,8 +69,16 @@ defmodule PgSiphonManagement.Recordings do
       :ok
   """
   def delete_recording(file_name) do
-    full_path = expand_file_name(file_name)
-    File.rm(full_path)
+    file_name
+    |> expand_file_name()
+    |> File.rm()
+
+    file_name
+    |> get_analysis_file_path()
+    |> IO.inspect()
+    |> File.rm()
+
+    :ok
   end
 
   def has_analysis?(raw_file_name) do

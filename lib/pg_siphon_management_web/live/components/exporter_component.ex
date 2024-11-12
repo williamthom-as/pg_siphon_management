@@ -1,16 +1,16 @@
 defmodule PgSiphonManagementWeb.ExporterComponent do
   use PgSiphonManagementWeb, :live_component
 
-  alias PgSiphonManagement.Persistence.FileExportRequest
-  alias PgSiphonManagement.Persistence.FileExporterService
+  alias PgSiphonManagement.Persistence.RecordingRequest
+  alias PgSiphonManagement.Persistence.RecordingServer
 
   alias Phoenix.PubSub
 
   def mount(socket) do
-    {_, changeset} = FileExportRequest.create(%{})
+    {_, changeset} = RecordingRequest.create(%{})
 
     %{recording: file_recording, file_name: file_name, root_dir: root_dir} =
-      :sys.get_state(:file_exporter_service)
+      :sys.get_state(:recording_server)
 
     {:ok,
      socket
@@ -43,7 +43,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
           <span class="font-semibold">Note:</span>
           File will be exported to dir: <span class="underline text-gray-600"><%= @root_dir %></span>
         </div>
-        <.form for={@form} id="file-export-form" phx-submit="submit" phx-target={@myself}>
+        <.form for={@form} id="recording-form" phx-submit="submit" phx-target={@myself}>
           <.input
             field={@form[:file_name]}
             label="File name"
@@ -72,14 +72,14 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
   def handle_event(
         "submit",
         %{
-          "file_export_request" =>
+          "recording_request" =>
             %{"file_format" => _file_format, "file_name" => file_name} = f_params
         },
         socket
       ) do
-    case FileExportRequest.create(f_params) do
+    case RecordingRequest.create(f_params) do
       {:ok, _new_request} ->
-        {_, new_changeset} = FileExportRequest.create(%{})
+        {_, new_changeset} = RecordingRequest.create(%{})
 
         PubSub.broadcast(
           PgSiphonManagement.PubSub,
@@ -87,10 +87,10 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
           {:start_export, %{file_name: file_name}}
         )
 
-        FileExporterService.start(file_name)
+        RecordingServer.start(file_name)
 
         %{recording: file_recording, file_name: file_name} =
-          :sys.get_state(:file_exporter_service)
+          :sys.get_state(:recording_server)
 
         {:noreply,
          socket
@@ -107,10 +107,10 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
   end
 
   def handle_event("stop", _, socket) do
-    {status, msg} = FileExporterService.stop()
+    {_status, _msg} = RecordingServer.stop()
 
     %{recording: file_recording, file_name: file_name} =
-      :sys.get_state(:file_exporter_service)
+      :sys.get_state(:recording_server)
 
     # Notify pubsub to remove banner
 
