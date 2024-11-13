@@ -112,6 +112,18 @@ defmodule PgSiphonManagement.Recordings do
     end
   end
 
+  def get_recording_contents(file_name, options \\ %{}) do
+    offset = options[:offset] || 0
+    max = options[:max] || 10
+
+    file_name
+    |> expand_file_name()
+    |> File.stream!()
+    |> CSV.decode()
+    |> Enum.drop(offset)
+    |> Enum.take(max)
+  end
+
   defp expand_file_name(file_name) do
     root_dir =
       Application.get_env(:pg_siphon_management, :export)

@@ -39,7 +39,7 @@ defmodule PgSiphonManagement.MixProject do
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       # TODO bump on release to {:phoenix_live_view, "~> 1.0.0"},
-      {:phoenix_live_view, "~> 1.0.0-rc.1", override: true},
+      {:phoenix_live_view, "~> 1.0.0-rc.7", override: true},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
@@ -63,7 +63,8 @@ defmodule PgSiphonManagement.MixProject do
       {:dart_sass, "~> 0.7", runtime: Mix.env() == :dev},
       {:pg_siphon, path: "../pg_siphon"},
       {:csv, "~> 3.2"},
-      {:timex, "~> 3.7"}
+      {:timex, "~> 3.7"},
+      {:pg_query_ex, "~> 0.5.4"}
     ]
   end
 

@@ -109,14 +109,20 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                     <%= @analysis.content["total_count"] %>
                   </div>
                 </.dashboard_card>
-                <.dashboard_card title="Duration">
-                  <div class="text-md text-gray-200">-</div>
+                <.dashboard_card title="Duration (sec)">
+                  <div class="text-md text-gray-200">
+                    <%= @analysis.content["duration"] %>
+                  </div>
                 </.dashboard_card>
-                <.dashboard_card title="Start Time">
-                  <div class="text-md text-gray-200">-</div>
+                <.dashboard_card title="Start Timestamp">
+                  <div class="text-md text-gray-200">
+                    <%= @analysis.content["start_time"] %>
+                  </div>
                 </.dashboard_card>
-                <.dashboard_card title="Finish Time">
-                  <div class="text-md text-gray-200">-</div>
+                <.dashboard_card title="Finish Timestamp">
+                  <div class="text-md text-gray-200">
+                    <%= @analysis.content["end_time"] %>
+                  </div>
                 </.dashboard_card>
               </.dashboard_container>
               <.dashboard_container>
@@ -133,6 +139,13 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                   <% end %>
                 </.dashboard_card>
                 <.dashboard_card title="Tables Impacted" class="col-span-2"></.dashboard_card>
+                <.dashboard_card title="SQL Message Frames (FE)" class="col-span-4">
+                  <.live_component
+                    module={PgSiphonManagementWeb.Recording.FileRecordingComponent}
+                    selected_file={@selected_file}
+                    id="file_recording_viewer"
+                  />
+                </.dashboard_card>
               </.dashboard_container>
             <% else %>
               <.empty_state icon_name="presentation-chart-line">

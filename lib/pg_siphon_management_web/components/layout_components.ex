@@ -140,7 +140,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
   """
   attr :title, :string, required: true
   attr :open, :boolean, default: false
-  slot :inner_block, default: ""
+  slot :inner_block, required: false
 
   def accordion_entry(assigns) do
     ~H"""
