@@ -13,19 +13,10 @@ module.exports = {
   ],
   safelist: [
     {
-      pattern: /bg-(red|green|blue|yellow|purple|pink|indigo|gray|black|white|teal|orange|amber|lime|emerald|cyan|sky|violet|fuchsia|rose)-500/,
-    },
-    {
-      pattern: /from-(red|green|blue|yellow|purple|pink|indigo|gray|black|white|teal|orange|amber|lime|emerald|cyan|sky|violet|fuchsia|rose)-500/,
-    },
-    {
-      pattern: /to-(red|green|blue|yellow|purple|pink|indigo|gray|black|white|teal|orange|amber|lime|emerald|cyan|sky|violet|fuchsia|rose)-600/,
-    },
-    {
-      pattern: /to-(red|green|blue|yellow|purple|pink|indigo|gray|black|white|teal|orange|amber|lime|emerald|cyan|sky|violet|fuchsia|rose)-700/,
-    },
+      pattern: /(bg|text|from|to)-(red|green|blue|yellow|purple|pink|indigo|gray|black|white|teal|orange|amber|lime|emerald|cyan|sky|violet|fuchsia|rose)-(300|400|500|600|700)/,
+    }
   ],
-theme: {
+  theme: {
     extend: {
       colors: {
         gray: require('tailwindcss/colors').neutral,

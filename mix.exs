@@ -64,7 +64,8 @@ defmodule PgSiphonManagement.MixProject do
       {:pg_siphon, path: "../pg_siphon"},
       {:csv, "~> 3.2"},
       {:timex, "~> 3.7"},
-      {:pg_query_ex, "~> 0.5.4"}
+      {:pg_query_ex, "~> 0.5.4"},
+      {:sql_fmt, "~> 0.3.0"}
     ]
   end
 

@@ -304,4 +304,16 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
     </div>
     """
   end
+
+  attr :start_page, :integer, required: true
+  attr :end_page, :integer, required: true
+  attr :total_count, :integer, required: true
+
+  def pagination_text(assigns) do
+    ~H"""
+    <div class="italic font-mono text-xs text-gray-300">
+      Showing <%= @start_page %> to <%= @end_page %> of <%= @total_count %> results
+    </div>
+    """
+  end
 end

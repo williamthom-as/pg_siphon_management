@@ -5,11 +5,13 @@ defmodule PgSiphonManagement.Recording.FilterRecordingRequest do
 
   embedded_schema do
     field :message_type, :string
+    field :offset, :integer, default: 0
+    field :max, :integer, default: 10
   end
 
   def changeset(request, attrs) do
     request
-    |> cast(attrs, [:message_type])
+    |> cast(attrs, [:message_type, :offset, :max])
     |> validate_required([:message_type])
   end
 
