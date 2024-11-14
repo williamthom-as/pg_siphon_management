@@ -10,15 +10,21 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
       PubSub.subscribe(PgSiphonManagement.PubSub, "recording")
     end
 
-    options = %{
+    card_list_options = %{
       filter: nil,
       offset: 0,
       max: 10
     }
 
+    recording_list_options = %{
+      offset: 0,
+      max: 20,
+      filter_types: []
+    }
+
     # Recordings needs to do more lifting, returning simple structs to be updated.
     # These should hold - is being recorded, is in progress, has analysis.
-    recordings = Recordings.list_recordings(options)
+    recordings = Recordings.list_recordings(card_list_options)
 
     %{recording: recording, file_name: recording_file_name} =
       :sys.get_state(:recording_server)
@@ -27,7 +33,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
       assign(
         socket,
         recordings: recordings,
-        options: options,
+        card_list_options: card_list_options,
+        recording_list_options: recording_list_options,
         page_title: "Analytics",
         in_progress: [],
         recording: recording,
@@ -38,14 +45,21 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   end
 
   def handle_params(%{"file_name" => file_name}, _uri, socket) do
+    recording_list_options = %{
+      offset: 0,
+      max: 20,
+      filter_types: []
+    }
+
     selected_file = Recordings.get_recording(file_name)
-    {_, analysis} = Recordings.get_analysis(file_name)
+    {_, analysis} = Recordings.get_analysis(file_name, recording_list_options)
 
     {:noreply,
      assign(
        socket,
        selected_file: selected_file,
-       analysis: analysis
+       analysis: analysis,
+       recording_list_options: recording_list_options
      )}
   end
 
@@ -109,30 +123,62 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                     <%= @analysis.content["total_count"] %>
                   </div>
                 </.dashboard_card>
-                <.dashboard_card title="Duration">
-                  <div class="text-md text-gray-200">-</div>
+                <.dashboard_card title="Duration (sec)">
+                  <div class="text-md text-gray-200">
+                    <%= @analysis.content["duration"] %>
+                  </div>
                 </.dashboard_card>
-                <.dashboard_card title="Start Time">
-                  <div class="text-md text-gray-200">-</div>
+                <.dashboard_card title="Start Timestamp">
+                  <div class="text-md text-gray-200">
+                    <%= @analysis.content["start_time"] %>
+                  </div>
                 </.dashboard_card>
-                <.dashboard_card title="Finish Time">
-                  <div class="text-md text-gray-200">-</div>
+                <.dashboard_card title="Finish Timestamp">
+                  <div class="text-md text-gray-200">
+                    <%= @analysis.content["end_time"] %>
+                  </div>
                 </.dashboard_card>
               </.dashboard_container>
               <.dashboard_container>
                 <.dashboard_card title="Total Count of Messages" class="col-span-2">
                   <.kvp_entry>
                     <:key></:key>
-                    <:value>Count</:value>
+                    <:value>
+                      <span class="text-gray-400 text-sm font-mono">Count | Filter</span>
+                    </:value>
                   </.kvp_entry>
                   <%= for {type, count} <- @analysis.content["message_type_count"] do %>
                     <.kvp_entry>
-                      <:key><%= type %></:key>
-                      <:value><%= count %></:value>
+                      <:key>
+                        <% msg_colour = PgMsgColourMapper.call(type) %>
+                        <span class={"text-#{msg_colour}-400 text-xs"}>[<%= type %>]</span>
+                      </:key>
+                      <:value>
+                        <% is_on = Enum.member?(@recording_list_options.filter_types, type) %>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                          <span class="text-gray-300"><%= count %></span>
+
+                          <input
+                            type="checkbox"
+                            class="form-checkbox h-5 w-5 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500 cursor-pointer"
+                            checked={is_on}
+                            phx-click="toggle_filter_message_type"
+                            phx-value-key={type}
+                          />
+                        </label>
+                      </:value>
                     </.kvp_entry>
                   <% end %>
                 </.dashboard_card>
                 <.dashboard_card title="Tables Impacted" class="col-span-2"></.dashboard_card>
+                <.dashboard_card title="Replay Log" class="col-span-4">
+                  <.live_component
+                    module={PgSiphonManagementWeb.Recording.FileRecordingComponent}
+                    analysis={@analysis}
+                    options={@recording_list_options}
+                    id="file_recording_viewer"
+                  />
+                </.dashboard_card>
               </.dashboard_container>
             <% else %>
               <.empty_state icon_name="presentation-chart-line">
@@ -306,10 +352,10 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   # Searching for recording
   def handle_event("search", %{"search" => search_param}, socket) do
-    options = %{socket.assigns.options | filter: search_param}
-    recordings = Recordings.list_recordings(options)
+    card_list_options = %{socket.assigns.card_list_options | filter: search_param}
+    recordings = Recordings.list_recordings(card_list_options)
 
-    {:noreply, assign(socket, recordings: recordings, options: options)}
+    {:noreply, assign(socket, recordings: recordings, card_list_options: card_list_options)}
   end
 
   # Button to delete recording
@@ -321,7 +367,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     {:noreply,
      assign(
        socket,
-       recordings: Recordings.list_recordings(socket.assigns.options),
+       recordings: Recordings.list_recordings(socket.assigns.card_list_options),
        selected_file: selected_file,
        analysis: analysis
      )}
@@ -334,6 +380,93 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     PgSiphonManagement.Analysis.Generator.call(file.full_path)
 
     {:noreply, assign(socket, in_progress: [file.file_name], analysis: nil)}
+  end
+
+  def handle_event("pagination", %{"change" => "decrement"}, socket) do
+    recording_list_options = socket.assigns.recording_list_options
+
+    recording_list_options = %{
+      recording_list_options
+      | offset: max(recording_list_options.offset - recording_list_options.max, 0)
+    }
+
+    {_, analysis} =
+      Recordings.get_analysis(
+        socket.assigns.selected_file.file_name,
+        recording_list_options
+      )
+
+    {:noreply,
+     assign(
+       socket,
+       analysis: analysis,
+       recording_list_options: recording_list_options
+     )}
+  end
+
+  def handle_event("pagination", %{"change" => "increment"}, socket) do
+    recording_list_options = socket.assigns.recording_list_options
+
+    recording_list_options = %{
+      recording_list_options
+      | offset: recording_list_options.offset + recording_list_options.max
+    }
+
+    {_, analysis} =
+      Recordings.get_analysis(
+        socket.assigns.selected_file.file_name,
+        recording_list_options
+      )
+
+    {:noreply,
+     assign(
+       socket,
+       analysis: analysis,
+       recording_list_options: recording_list_options
+     )}
+  end
+
+  def handle_event("toggle_filter_message_type", %{"key" => key, "value" => "on"}, socket) do
+    options = socket.assigns.recording_list_options
+
+    options =
+      if key in options.filter_types do
+        options
+      else
+        %{options | filter_types: [key | options.filter_types]}
+      end
+
+    {_, analysis} =
+      Recordings.get_analysis(
+        socket.assigns.selected_file.file_name,
+        options
+      )
+
+    {:noreply,
+     assign(
+       socket,
+       analysis: analysis,
+       recording_list_options: options
+     )}
+  end
+
+  def handle_event("toggle_filter_message_type", %{"key" => key}, socket) do
+    options = socket.assigns.recording_list_options
+
+    options = %{options | filter_types: List.delete(options.filter_types, key)}
+
+    {_, analysis} =
+      Recordings.get_analysis(
+        socket.assigns.selected_file.file_name,
+        options
+      )
+
+    {:noreply,
+     assign(
+       socket,
+       analysis: analysis,
+       recording_list_options: options
+     )}
   end
 
   # Analysis has finished

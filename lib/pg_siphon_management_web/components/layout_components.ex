@@ -140,7 +140,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
   """
   attr :title, :string, required: true
   attr :open, :boolean, default: false
-  slot :inner_block, default: ""
+  slot :inner_block, required: false
 
   def accordion_entry(assigns) do
     ~H"""
@@ -301,6 +301,18 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
       <div class="bg-gray-800 p-4 rounded-b-lg">
         <%= render_slot(@inner_block) %>
       </div>
+    </div>
+    """
+  end
+
+  attr :start_page, :integer, required: true
+  attr :end_page, :integer, required: true
+  attr :total_count, :integer, required: true
+
+  def pagination_text(assigns) do
+    ~H"""
+    <div class="italic font-mono text-xs text-gray-300">
+      Showing <%= @start_page %> to <%= @end_page %> of <%= @total_count %> results
     </div>
     """
   end

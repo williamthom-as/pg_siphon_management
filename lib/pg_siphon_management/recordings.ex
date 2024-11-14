@@ -86,30 +86,54 @@ defmodule PgSiphonManagement.Recordings do
     |> File.exists?()
   end
 
-  def get_analysis(raw_file_name) do
-    file_path = get_analysis_file_path(raw_file_name)
+  def get_analysis(raw_file_name, options \\ %{}) do
+    analysis_file_path = get_analysis_file_path(raw_file_name)
 
-    case File.exists?(file_path) do
+    case File.exists?(analysis_file_path) do
       true ->
-        {:ok, stats} = File.stat(file_path)
+        {:ok, stats} = File.stat(analysis_file_path)
 
         content =
-          file_path
+          analysis_file_path
           |> File.read!()
           |> Jason.decode!()
 
         {:ok,
          %{
            file_name: raw_file_name,
-           full_path: file_path,
+           full_path: analysis_file_path,
            creation_time: stats.ctime,
            size: stats.size,
-           content: content
+           content: content,
+           replay_log: get_recording_contents(raw_file_name, options)
          }}
 
       false ->
         {:enoent, nil}
     end
+  end
+
+  defp get_recording_contents(file_name, options) do
+    offset = options[:offset] || 0
+    max = options[:max] || 20
+    filter_types = options[:filter_types] || []
+
+    file_name
+    |> expand_file_name()
+    |> File.stream!()
+    |> CSV.decode()
+    |> Enum.filter(fn
+      {:ok, row} ->
+        case filter_types do
+          [] -> true
+          _ -> Enum.at(row, 0) in filter_types
+        end
+
+      {:error, _reason} ->
+        false
+    end)
+    |> Enum.drop(offset)
+    |> Enum.take(max)
   end
 
   defp expand_file_name(file_name) do
