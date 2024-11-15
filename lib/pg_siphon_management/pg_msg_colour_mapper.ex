@@ -1,7 +1,7 @@
 defmodule PgMsgColourMapper do
   @fe_msg_colours %{
     "p" => "orange",
-    "Q" => "lime",
+    "Q" => "sky",
     "P" => "emerald",
     "B" => "amber",
     "E" => "cyan",
@@ -14,7 +14,7 @@ defmodule PgMsgColourMapper do
     "c" => "purple",
     "f" => "pink",
     "X" => "red",
-    "0" => nil
+    "0" => "gray"
   }
 
   def call(msg_type) do

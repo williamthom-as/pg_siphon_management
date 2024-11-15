@@ -15,52 +15,57 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
     ~H"""
     <div class="">
       <div class="flex justify-between items-center mb-4">
-        <.form
-          for={@form}
-          id="recording-form"
-          phx-submit="submit"
-          phx-target={@myself}
-          class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4"
-        >
-          <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-            <div class="w-16">
-              <.input
-                type="select"
-                field={@form[:max]}
-                value={@options.max}
-                label="Max"
-                options={[10, 20, 50, 100]}
-                class="w-full"
-              />
-            </div>
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+          <div class="w-16">
+            <.input
+              type="select"
+              name="max"
+              value={@options.max}
+              label="Max"
+              options={[10, 20, 50, 100]}
+              class="w-full"
+              phx-click="change_max"
+            />
           </div>
-        </.form>
-        <div class="flex justify-end space-x-4 items-center">
+        </div>
+        <div class="flex justify-end space-x-2 items-center">
           <.pagination_text
             start_page={@options.offset + 1}
             end_page={min(@options.max + @options.offset, @analysis.content["total_count"])}
-            total_count={@analysis.content["total_count"]}
+            total_count={total_count(@analysis, @options)}
           />
-          <.button phx-click="pagination" phx-value-change="decrement">Previous</.button>
-          <.button phx-click="pagination" phx-value-change="increment">Next</.button>
+          <.button phx-click="pagination" phx-value-change="decrement">
+            <div class="flex items-center">
+              <Heroicons.icon name="chevron-double-left" type="mini" class="h-4 w-4" /> Previous
+            </div>
+          </.button>
+          <.button phx-click="pagination" phx-value-change="increment">
+            <div class="flex items-center">
+              Next <Heroicons.icon name="chevron-double-right" type="mini" class="h-4 w-4" />
+            </div>
+          </.button>
         </div>
       </div>
       <div class="overflow-auto">
         <div class="flex flex-col">
-          <div class="flex flex-row bg-gray-900 p-2 mb-2 text-xs font-semibold font-mono rounded-sm text-center items-center text-gray-300">
+          <div class="flex flex-row bg-gray-900 p-2 mb-1 text-xs font-semibold font-mono rounded-sm text-center items-center text-gray-300">
             <div class="w-12 font-bold">Type</div>
             <div class="flex-1 font-bold ml-4">Message</div>
             <div class="w-24 font-bold">Timestamp</div>
           </div>
-          <%= for {{_, [type, message, timestamp]}, idx} <- Enum.with_index(@analysis.replay_log) do %>
+          <%= for {{_, [type, message, timestamp]}, _idx} <- Enum.with_index(@analysis.replay_log) do %>
             <% msg_colour = PgMsgColourMapper.call(type) %>
-            <div class={"flex flex-row p-2 py-1 text-gray-300 items-center-x #{if rem(idx, 2) == 0, do: "bg-gray-800", else: "bg-zinc-700 bg-opacity-30"}"}>
+            <div class={"flex flex-row p-2 py-1 text-gray-300 items-center bg-#{msg_colour}-500 bg-opacity-10 rounded-sm mt-1"}>
               <div class={"w-12 text-#{msg_colour}-400 text-xs text-center"}>[<%= type %>]</div>
-              <div class="flex-1 overflow-auto font-mono text-xs leading-relaxed scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div class="flex-1 overflow-auto font-mono text-gray-100 text-xs leading-relaxed scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 <.sql_fmt message={message} />
               </div>
-              <div class="w-24 text-gray-500 text-xs text-center">
-                <%= timestamp %>
+              <div class="w-24 text-gray-300 text-xs text-center">
+                <.format_ts
+                  timestamp={String.to_integer(timestamp)}
+                  date_time_format="{h24}:{m}:{s}{ss}"
+                  show_time_ago={false}
+                />
               </div>
             </div>
           <% end %>
@@ -87,5 +92,22 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
       </pre>
     </div>
     """
+  end
+
+  defp total_count(analysis, options) do
+    case options[:filter_types] do
+      [] ->
+        analysis.content["total_count"]
+
+      _ ->
+        Enum.reduce(analysis.content["message_type_count"], 0, fn
+          {type, count}, acc ->
+            if type in options[:filter_types] do
+              acc + count
+            else
+              acc
+            end
+        end)
+    end
   end
 end

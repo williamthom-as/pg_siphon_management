@@ -231,7 +231,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def internal_header(assigns) do
     ~H"""
-    <section class="flex bg-gray-900">
+    <section class="flex bg-gray-900 border border-gray-700 rounded-sm">
       <div class="w-full mx-auto">
         <div class="relative overflow-hidden bg-gray-800 rounded-sm">
           <div class="flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
@@ -292,7 +292,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def dashboard_card(assigns) do
     ~H"""
-    <div class={["bg-gray-800 shadow-md rounded-sm", @class]}>
+    <div class={["bg-gray-800 shadow-md rounded-sm border border-gray-700", @class]}>
       <div class="bg-gray-700 px-4 py-2 rounded-t-sm">
         <h2 class="text-xs text-gray-400 font-mono">
           <%= @title %>

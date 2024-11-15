@@ -118,9 +118,14 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
           <div class="text-gray-600 mt-4">
             <%= if @analysis do %>
               <.dashboard_container>
-                <.dashboard_card title="Total Count of Messages">
+                <.dashboard_card title="Start">
                   <div class="text-md text-gray-200">
-                    <%= @analysis.content["total_count"] %>
+                    <.format_ts timestamp={@analysis.content["start_time"]} />
+                  </div>
+                </.dashboard_card>
+                <.dashboard_card title="Finish">
+                  <div class="text-md text-gray-200">
+                    <.format_ts timestamp={@analysis.content["end_time"]} />
                   </div>
                 </.dashboard_card>
                 <.dashboard_card title="Duration (sec)">
@@ -128,30 +133,26 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                     <%= @analysis.content["duration"] %>
                   </div>
                 </.dashboard_card>
-                <.dashboard_card title="Start Timestamp">
+                <.dashboard_card title="Total Count of Messages">
                   <div class="text-md text-gray-200">
-                    <%= @analysis.content["start_time"] %>
-                  </div>
-                </.dashboard_card>
-                <.dashboard_card title="Finish Timestamp">
-                  <div class="text-md text-gray-200">
-                    <%= @analysis.content["end_time"] %>
+                    <%= @analysis.content["total_count"] %>
                   </div>
                 </.dashboard_card>
               </.dashboard_container>
               <.dashboard_container>
-                <.dashboard_card title="Total Count of Messages" class="col-span-2">
-                  <.kvp_entry>
-                    <:key></:key>
-                    <:value>
-                      <span class="text-gray-400 text-sm font-mono">Count | Filter</span>
-                    </:value>
-                  </.kvp_entry>
+                <.dashboard_card title="Message Type Counts" class="col-span-2">
+                  <div class="font-mono text-gray-500 text-xs flex items-center mb-4">
+                    <Heroicons.icon name="information-circle" type="mini" class="h-4 w-4 mr-2" />
+                    Note: You can filter the replay log by toggling the message types.
+                  </div>
                   <%= for {type, count} <- @analysis.content["message_type_count"] do %>
                     <.kvp_entry>
                       <:key>
                         <% msg_colour = PgMsgColourMapper.call(type) %>
-                        <span class={"text-#{msg_colour}-400 text-xs"}>[<%= type %>]</span>
+                        <% full_name = PgSiphon.Message.get_name_for_message_type(type) %>
+                        <span class={"text-#{msg_colour}-400 text-xs font-mono"}>
+                          <%= full_name %> [<%= type %>]
+                        </span>
                       </:key>
                       <:value>
                         <% is_on = Enum.member?(@recording_list_options.filter_types, type) %>
@@ -265,9 +266,9 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
     card_classes =
       if recording.file_name == selected_file.file_name do
-        "text-white bg-blue-500 hover:bg-blue-500"
+        "text-white bg-blue-500 hover:bg-blue-500 border-blue-500"
       else
-        "bg-gray-800 hover:bg-gray-700"
+        "bg-gray-800 hover:bg-gray-700 border-gray-700"
       end
 
     text_classes =
@@ -288,7 +289,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     <li>
       <div
         patch={~p"/analytics?#{[file_name: @recording.file_name]}"}
-        class={"rounded-sm flex items-center space-x-2 #{@card_classes}"}
+        class={"rounded-sm flex items-center space-x-2 #{@card_classes} border"}
       >
         <.link
           patch={~p"/analytics?#{[file_name: @recording.file_name]}"}
@@ -383,47 +384,25 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   end
 
   def handle_event("pagination", %{"change" => "decrement"}, socket) do
-    recording_list_options = socket.assigns.recording_list_options
+    options = socket.assigns.recording_list_options
 
-    recording_list_options = %{
-      recording_list_options
-      | offset: max(recording_list_options.offset - recording_list_options.max, 0)
+    options = %{
+      options
+      | offset: max(options.offset - options.max, 0)
     }
 
-    {_, analysis} =
-      Recordings.get_analysis(
-        socket.assigns.selected_file.file_name,
-        recording_list_options
-      )
-
-    {:noreply,
-     assign(
-       socket,
-       analysis: analysis,
-       recording_list_options: recording_list_options
-     )}
+    assign_analysis(socket, options)
   end
 
   def handle_event("pagination", %{"change" => "increment"}, socket) do
-    recording_list_options = socket.assigns.recording_list_options
+    options = socket.assigns.recording_list_options
 
-    recording_list_options = %{
-      recording_list_options
-      | offset: recording_list_options.offset + recording_list_options.max
+    options = %{
+      options
+      | offset: options.offset + options.max
     }
 
-    {_, analysis} =
-      Recordings.get_analysis(
-        socket.assigns.selected_file.file_name,
-        recording_list_options
-      )
-
-    {:noreply,
-     assign(
-       socket,
-       analysis: analysis,
-       recording_list_options: recording_list_options
-     )}
+    assign_analysis(socket, options)
   end
 
   def handle_event("toggle_filter_message_type", %{"key" => key, "value" => "on"}, socket) do
@@ -436,37 +415,21 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
         %{options | filter_types: [key | options.filter_types]}
       end
 
-    {_, analysis} =
-      Recordings.get_analysis(
-        socket.assigns.selected_file.file_name,
-        options
-      )
-
-    {:noreply,
-     assign(
-       socket,
-       analysis: analysis,
-       recording_list_options: options
-     )}
+    assign_analysis(socket, options)
   end
 
   def handle_event("toggle_filter_message_type", %{"key" => key}, socket) do
     options = socket.assigns.recording_list_options
-
     options = %{options | filter_types: List.delete(options.filter_types, key)}
 
-    {_, analysis} =
-      Recordings.get_analysis(
-        socket.assigns.selected_file.file_name,
-        options
-      )
+    assign_analysis(socket, options)
+  end
 
-    {:noreply,
-     assign(
-       socket,
-       analysis: analysis,
-       recording_list_options: options
-     )}
+  def handle_event("change_max", %{"value" => max}, socket) do
+    options = socket.assigns.recording_list_options
+    options = %{options | max: String.to_integer(max)}
+
+    assign_analysis(socket, options)
   end
 
   # Analysis has finished
@@ -523,5 +486,20 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
       end
 
     {selected_file, analysis}
+  end
+
+  defp assign_analysis(socket, options) do
+    {_, analysis} =
+      Recordings.get_analysis(
+        socket.assigns.selected_file.file_name,
+        options
+      )
+
+    {:noreply,
+     assign(
+       socket,
+       analysis: analysis,
+       recording_list_options: options
+     )}
   end
 end

@@ -98,4 +98,40 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
 
   defp alert_class(_),
     do: "bg-gradient-to-br from-gray-500 to-gray-700 text-white p-4 rounded-md shadow-md"
+
+  attr :timestamp, :integer, required: true
+  attr :class, :string, default: ""
+  attr :date_time_format, :string, default: "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"
+  attr :show_time_ago, :boolean, default: true
+
+  def format_ts(assigns) do
+    converted_time =
+      assigns.timestamp
+      |> Timex.from_unix(:milliseconds)
+      |> Timex.Timezone.convert(:local)
+
+    formatted_timestamp =
+      converted_time
+      |> Timex.format!(assigns.date_time_format)
+
+    time_ago =
+      converted_time
+      |> Timex.diff(Timex.now(), :duration)
+      |> Timex.format_duration(:humanized)
+
+    assigns =
+      assigns
+      |> assign(:formatted_timestamp, formatted_timestamp)
+      |> assign(:time_ago, time_ago)
+
+    ~H"""
+    <span class={[@class, "block text-gray-700"]}>
+      <span class="text-gray-300"><%= @formatted_timestamp %></span>
+      <%= if @show_time_ago do %>
+        <br />
+        <small class="text-sm text-gray-500"><%= @time_ago %> ago</small>
+      <% end %>
+    </span>
+    """
+  end
 end
