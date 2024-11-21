@@ -161,7 +161,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
                           <input
                             type="checkbox"
-                            class="form-checkbox h-5 w-5 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500 cursor-pointer"
+                            class="form-checkbox h-5 w-5 text-blue-500 bg-gray-800 border-gray-600 focus:ring-blue-500 cursor-pointer"
                             checked={is_on}
                             phx-click="toggle_filter_message_type"
                             phx-value-key={type}
@@ -238,7 +238,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     <ul class="my-2 space-y-2">
       <%= if Enum.empty?(@recordings) do %>
         <.empty_state
-          icon_name="document-magnifying-glass"
+          icon_name="exclamation-triangle"
           alert_message="No recordings found."
           text_size="text-sm"
         >
