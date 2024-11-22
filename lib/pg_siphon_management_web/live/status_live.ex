@@ -108,7 +108,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
                       <% is_on = Enum.member?(@filter_message_types, key) %>
                       <input
                         type="checkbox"
-                        class="form-checkbox h-5 w-5 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500 cursor-pointer"
+                        class="form-checkbox h-5 w-5 text-blue-500 bg-gray-800 border-gray-600 focus:ring-blue-500 cursor-pointer"
                         checked={is_on}
                         phx-click="toggle_filter_message_type"
                         phx-value-key={key}
@@ -163,10 +163,14 @@ defmodule PgSiphonManagementWeb.StatusLive do
             <div :for={{id, message} <- @streams.messages} id={id} class="mb-2">
               <p>
                 <span class="text-blue-400">
-                  [<%= message.time %>]
+                  [<%= message.message.time %>]
                 </span>
-                <span class="text-green-400">[<%= message.message.type %>]</span>
-                <%= message.message.payload %>
+                <span class="text-green-400">
+                  [<%= message.message.type %>]
+                </span>
+                <span class="break-all">
+                  <%= message.message.payload %>
+                </span>
               </p>
             </div>
           </div>
@@ -190,21 +194,22 @@ defmodule PgSiphonManagementWeb.StatusLive do
     {:noreply, assign_connections(socket)}
   end
 
-  @spec handle_info({:new_message_frame, map()}, Phoenix.LiveView.Socket.t()) ::
+  @spec handle_info({:new_message_frame, list(map())}, Phoenix.LiveView.Socket.t()) ::
           {:noreply, Phoenix.LiveView.Socket.t()}
-  def handle_info({:new_message_frame, message}, socket) do
-    counter = socket.assigns.counter
+  def handle_info({:new_message_frame, messages}, socket) do
+    initial_counter = socket.assigns.counter
 
-    formatted_time =
-      DateTime.utc_now()
-      |> Calendar.strftime("%Y-%m-%d %H:%M:%S:%f")
+    {messages_ids, final_counter} =
+      Enum.reduce(messages, {[], initial_counter}, fn message, {acc, counter} ->
+        {[%{id: counter, message: message} | acc], counter + 1}
+      end)
 
     socket =
       socket
-      |> stream_insert(:messages, %{id: counter, time: formatted_time, message: message, at: 0})
-      |> handle_overflow(counter)
+      |> stream(:messages, Enum.reverse(messages_ids))
+      |> handle_overflow(final_counter)
 
-    {:noreply, assign(socket, counter: counter + 1)}
+    {:noreply, assign(socket, counter: final_counter)}
   end
 
   @spec handle_info({:connections_changed}, Phoenix.LiveView.Socket.t()) ::
@@ -251,8 +256,16 @@ defmodule PgSiphonManagementWeb.StatusLive do
   defp handle_overflow(socket, counter) do
     cond do
       counter >= @max_display_records ->
-        # this returns updated socket
-        stream_delete_by_dom_id(socket, :messages, "messages-#{counter - @max_display_records}")
+        start_id = counter - @max_display_records
+
+        remove_ids =
+          0..start_id
+          |> Enum.map(fn id -> "messages-#{id}" end)
+
+        # reduce with socket acc
+        Enum.reduce(remove_ids, socket, fn id, acc ->
+          stream_delete_by_dom_id(acc, :messages, id)
+        end)
 
       true ->
         socket
