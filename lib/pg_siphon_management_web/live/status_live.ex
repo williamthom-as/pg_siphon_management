@@ -163,10 +163,14 @@ defmodule PgSiphonManagementWeb.StatusLive do
             <div :for={{id, message} <- @streams.messages} id={id} class="mb-2">
               <p>
                 <span class="text-blue-400">
-                  [<%= message.time %>]
+                  [<%= message.message.time %>]
                 </span>
-                <span class="text-green-400">[<%= message.message.type %>]</span>
-                <%= message.message.payload %>
+                <span class="text-green-400">
+                  [<%= message.message.type %>]
+                </span>
+                <span class="break-all">
+                  <%= message.message.payload %>
+                </span>
               </p>
             </div>
           </div>
@@ -193,20 +197,19 @@ defmodule PgSiphonManagementWeb.StatusLive do
   @spec handle_info({:new_message_frame, list(map())}, Phoenix.LiveView.Socket.t()) ::
           {:noreply, Phoenix.LiveView.Socket.t()}
   def handle_info({:new_message_frame, messages}, socket) do
-    counter = socket.assigns.counter
+    initial_counter = socket.assigns.counter
 
-    formatted_time =
-      DateTime.utc_now()
-      |> Calendar.strftime("%Y-%m-%d %H:%M:%S:%f")
+    {messages_ids, final_counter} =
+      Enum.reduce(messages, {[], initial_counter}, fn message, {acc, counter} ->
+        {[%{id: counter, message: message} | acc], counter + 1}
+      end)
 
     socket =
-      stream(socket, :messages,
-        Enum.map(messages, fn message ->
-          %{id: counter, time: formatted_time, message: message, at: 0}
-        end))
-      |> handle_overflow(counter)
+      socket
+      |> stream(:messages, Enum.reverse(messages_ids))
+      |> handle_overflow(final_counter)
 
-    {:noreply, assign(socket, counter: counter + length(messages))}
+    {:noreply, assign(socket, counter: final_counter)}
   end
 
   @spec handle_info({:connections_changed}, Phoenix.LiveView.Socket.t()) ::
@@ -253,17 +256,20 @@ defmodule PgSiphonManagementWeb.StatusLive do
   defp handle_overflow(socket, counter) do
     cond do
       counter >= @max_display_records ->
-        remove_cnt = counter - @max_display_records + 1
-        remove_arr = (counter - remove_cnt)..(counter - @max_display_records)
-                 |> Enum.map(fn id -> "messages-#{id}" end)
+        start_id = counter - @max_display_records
 
-        Enum.reduce(remove_arr, socket, fn id, acc ->
-          stream_delete(acc, :messages, id)
+        remove_ids =
+          0..start_id
+          |> Enum.map(fn id -> "messages-#{id}" end)
+
+        # reduce with socket acc
+        Enum.reduce(remove_ids, socket, fn id, acc ->
+          stream_delete_by_dom_id(acc, :messages, id)
         end)
 
       true ->
         socket
-      end
+    end
   end
 
   defp assign_connections(socket) do
