@@ -104,6 +104,12 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
   attr :date_time_format, :string, default: "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"
   attr :show_time_ago, :boolean, default: true
 
+  def format_ts(%{timestamp: nil} = assigns) do
+    ~H"""
+    <div></div>
+    """
+  end
+
   def format_ts(assigns) do
     converted_time =
       assigns.timestamp

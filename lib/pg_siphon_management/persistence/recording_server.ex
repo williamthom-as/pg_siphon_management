@@ -75,19 +75,24 @@ defmodule PgSiphonManagement.Persistence.RecordingServer do
     {:reply, {:error, :not_started}, state}
   end
 
-  def handle_info(
-        {:new_message_frame, %{type: type, payload: payload, time: time}},
-        %{recording: true} = state
-      ) do
-    escaped_payload = String.replace(payload, "\n", "")
+  def handle_info({:new_message_frame, messages}, %{recording: true} = state)
+      when is_list(messages) do
+    messages
+    |> Enum.each(fn %{type: type, payload: payload, time: time} ->
+      escaped_payload = String.replace(payload, "\n", "")
 
-    csv_row =
-      [[type, escaped_payload, time]]
-      |> CSV.encode()
-      |> Enum.join()
+      csv_row =
+        [[type, escaped_payload, time]]
+        |> CSV.encode()
+        |> Enum.join()
 
-    IO.binwrite(state.current_file, csv_row)
+      IO.binwrite(state.current_file, csv_row)
+    end)
 
+    {:noreply, state}
+  end
+
+  def handle_info({:message_types_changed, _message_types}, state) do
     {:noreply, state}
   end
 
