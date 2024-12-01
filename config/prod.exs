@@ -17,5 +17,14 @@ config :swoosh, local: false
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :pg_siphon_management, :export, export_dir: "/etc" |> Path.join("pg_siphon_management")
+
+config :pg_siphon, :proxy_server,
+  from_port: 1337,
+  # If using Docker
+  to_host: ~c"host.docker.internal",
+  # to_host: ~c"localhost",
+  to_port: 5432
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

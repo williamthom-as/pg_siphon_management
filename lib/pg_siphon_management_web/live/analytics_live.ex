@@ -264,18 +264,25 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
     is_in_progress = assigns.recording_file_name == recording.file_name
 
-    card_classes =
-      if recording.file_name == selected_file.file_name do
-        "text-white bg-blue-500 hover:bg-blue-500 border-blue-500"
-      else
-        "bg-gray-800 hover:bg-gray-700 border-gray-700"
-      end
+    {card_classes, text_classes} =
+      case {recording, selected_file} do
+        {rec, selec} when is_nil(rec) or is_nil(selec) ->
+          {
+            "bg-gray-800 hover:bg-gray-700 border-gray-700",
+            "hover:bg-gray-700 text-gray-400"
+          }
 
-    text_classes =
-      if recording.file_name == selected_file.file_name do
-        "hover:bg-blue-500 text-blue-300"
-      else
-        "hover:bg-gray-700 text-gray-400"
+        {rec, selec} when rec.file_name == selec.file_name ->
+          {
+            "text-white bg-blue-500 hover:bg-blue-500 border-blue-500",
+            "hover:bg-blue-500 text-blue-300"
+          }
+
+        _ ->
+          {
+            "bg-gray-800 hover:bg-gray-700 border-gray-700",
+            "hover:bg-gray-700 text-gray-400"
+          }
       end
 
     assigns =
