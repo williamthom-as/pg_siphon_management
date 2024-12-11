@@ -2,7 +2,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
   use PgSiphonManagementWeb, :live_component
 
   alias PgSiphonManagement.Persistence.RecordingRequest
-  alias PgSiphonManagement.Persistence.RecordingServer
+  alias PgSiphon.Persistence.RecordingServer
 
   alias Phoenix.PubSub
 

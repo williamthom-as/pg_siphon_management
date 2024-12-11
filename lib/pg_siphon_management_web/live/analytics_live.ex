@@ -80,7 +80,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     <.two_columns>
       <:left_section>
         <div class="w-full rounded-sm shadow font-mono">
-          <h5 class="mb-4 text-base font-mono text-sm text-gray-200">
+          <h5 class="mb-4 text-base font-mono text-md text-gray-200">
             Recorded Logs
           </h5>
           <.search_form></.search_form>
