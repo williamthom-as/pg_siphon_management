@@ -22,8 +22,7 @@ defmodule PgSiphonManagement.Application do
       # Start a worker by calling: PgSiphonManagement.Worker.start_link(arg)
       # {PgSiphonManagement.Worker, arg},
       # Start to serve requests, typically the last entry
-      PgSiphonManagementWeb.Endpoint,
-      PgSiphonManagement.Persistence.RecordingServer
+      PgSiphonManagementWeb.Endpoint
     ]
 
     {:ok, msg} =
