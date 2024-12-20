@@ -169,17 +169,39 @@ defmodule PgSiphonManagementWeb.StatusLive do
                   [<%= message.message.type %>]
                 </span>
                 <span class="break-all">
-                  <%= if message.message.type == "P" do %>
-                    <% prep_statement = message.message.extras[:prepared_statement] %>
+                  <%= case message.message.type do %>
+                    <% "P" -> %>
+                      <% prep_statement = message.message.extras[:prepared_statement] %>
+                      <%= if prep_statement != "" do %>
+                        <span class="text-red-400">
+                          [<%= prep_statement %>]
+                        </span>
+                      <% end %>
 
-                    <%= if prep_statement != "" do %>
-                      <span class="text-red-400">
-                        [<%= prep_statement %>]
+                      <span class="text-slate-200">
+                        <%= message.message.payload %>
                       </span>
-                    <% end %>
+                    <% "B" -> %>
+                      <%!-- [1734696798331] [B] %{portal_name: "", statement_name: "a3", param_fmt_count: 2, param_fmts: [0, 0], param_count: 2, param_vals: [{1, "f"}, {1, "1"}], res_fmt_count: 1, res_fmts: [0]} a3f1 --%>
+                      <% extras = message.message.extras %>
+                      <%= if extras[:statement_name] != "" do %>
+                        <span class="text-red-400">
+                          [Stmt: <%= extras[:statement_name] %>]
+                        </span>
+                      <% end %>
+                      <%= for {_key, value} <- extras[:param_vals] do %>
+                        <span class="text-yellow-400">
+                          [<%= value %>]
+                        </span>
+                      <% end %>
+                      <span class="text-fuchsia-400">
+                        [Param Count: <%= extras[:param_count] %>]
+                      </span>
+                    <% _ -> %>
+                      <span class="text-slate-100">
+                        <%= message.message.payload %>
+                      </span>
                   <% end %>
-
-                  <%= message.message.payload %>
                 </span>
               </p>
             </div>
