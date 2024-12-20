@@ -182,21 +182,20 @@ defmodule PgSiphonManagementWeb.StatusLive do
                         <%= message.message.payload %>
                       </span>
                     <% "B" -> %>
-                      <%!-- [1734696798331] [B] %{portal_name: "", statement_name: "a3", param_fmt_count: 2, param_fmts: [0, 0], param_count: 2, param_vals: [{1, "f"}, {1, "1"}], res_fmt_count: 1, res_fmts: [0]} a3f1 --%>
                       <% extras = message.message.extras %>
                       <%= if extras[:statement_name] != "" do %>
                         <span class="text-red-400">
                           [Stmt: <%= extras[:statement_name] %>]
                         </span>
                       <% end %>
+                      <span class="text-fuchsia-400">
+                        Params (<%= extras[:param_count] %>):
+                      </span>
                       <%= for {_key, value} <- extras[:param_vals] do %>
                         <span class="text-yellow-400">
                           [<%= value %>]
                         </span>
                       <% end %>
-                      <span class="text-fuchsia-400">
-                        [Param Count: <%= extras[:param_count] %>]
-                      </span>
                     <% _ -> %>
                       <span class="text-slate-100">
                         <%= message.message.payload %>
