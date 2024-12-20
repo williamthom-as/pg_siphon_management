@@ -26,9 +26,6 @@ config :pg_siphon_management, PgSiphonManagementWeb.Endpoint,
   pubsub_server: PgSiphonManagement.PubSub,
   live_view: [signing_salt: "UvQCsraA"]
 
-config :pg_siphon_management, :export,
-  export_dir: System.user_home() |> Path.join(".pg_siphon_management")
-
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
@@ -82,6 +79,8 @@ config :pg_siphon, :proxy_server,
   from_port: 1337,
   to_host: ~c"localhost",
   to_port: 5432
+
+config :pg_siphon, :export, export_dir: System.user_home() |> Path.join(".pg_siphon_management")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

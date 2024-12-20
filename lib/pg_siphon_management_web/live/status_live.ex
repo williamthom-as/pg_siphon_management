@@ -1,7 +1,7 @@
 defmodule PgSiphonManagementWeb.StatusLive do
   use PgSiphonManagementWeb, :live_view
 
-  @max_display_records 500
+  @max_display_records 5000
 
   alias PgSiphonManagementWeb.ActiveConnectionsComponent
   alias PgSiphonManagementWeb.ExporterComponent
@@ -11,7 +11,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
   def mount(_params, _session, socket) do
     if connected?(socket) do
       PubSub.subscribe(:broadcaster, "message_frames")
-      PubSub.subscribe(PgSiphonManagement.PubSub, "recording")
+      PubSub.subscribe(:recording_notifier, "recording")
     end
 
     %{recording: recording} = :sys.get_state(:query_server)
@@ -169,6 +169,16 @@ defmodule PgSiphonManagementWeb.StatusLive do
                   [<%= message.message.type %>]
                 </span>
                 <span class="break-all">
+                  <%= if message.message.type == "P" do %>
+                    <% prep_statement = message.message.extras[:prepared_statement] %>
+
+                    <%= if prep_statement != "" do %>
+                      <span class="text-red-400">
+                        [<%= prep_statement %>]
+                      </span>
+                    <% end %>
+                  <% end %>
+
                   <%= message.message.payload %>
                 </span>
               </p>
@@ -207,7 +217,8 @@ defmodule PgSiphonManagementWeb.StatusLive do
     socket =
       socket
       |> stream(:messages, Enum.reverse(messages_ids))
-      |> handle_overflow(final_counter)
+
+    # |> handle_overflow(final_counter)
 
     {:noreply, assign(socket, counter: final_counter)}
   end
