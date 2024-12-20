@@ -10,7 +10,7 @@ defmodule PgSiphonManagement.Recordings do
   """
   def list_recordings(options \\ %{}) do
     root_dir =
-      Application.get_env(:pg_siphon_management, :export)
+      Application.get_env(:pg_siphon, :export)
       |> Keyword.get(:export_dir)
 
     offset = options[:offset] || 0
@@ -138,7 +138,7 @@ defmodule PgSiphonManagement.Recordings do
 
   defp expand_file_name(file_name) do
     root_dir =
-      Application.get_env(:pg_siphon_management, :export)
+      Application.get_env(:pg_siphon, :export)
       |> Keyword.get(:export_dir)
 
     Path.join(root_dir, file_name)

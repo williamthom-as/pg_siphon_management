@@ -26,7 +26,7 @@ defmodule PgSiphonManagement.Application do
     ]
 
     {:ok, msg} =
-      Application.get_env(:pg_siphon_management, :export)
+      Application.get_env(:pg_siphon, :export)
       |> Keyword.get(:export_dir)
       |> PgSiphonManagement.Persistence.FileHelpers.make_dir_p()
 

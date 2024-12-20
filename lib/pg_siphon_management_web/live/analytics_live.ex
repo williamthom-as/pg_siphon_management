@@ -6,8 +6,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def mount(_params, _session, socket) do
     if connected?(socket) do
+      PubSub.subscribe(:recording_notifier, "recording")
       PubSub.subscribe(PgSiphonManagement.PubSub, "analysis")
-      PubSub.subscribe(PgSiphonManagement.PubSub, "recording")
     end
 
     card_list_options = %{

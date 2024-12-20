@@ -43,7 +43,8 @@ defmodule PgSiphonManagementWeb do
         layouts: [html: PgSiphonManagementWeb.Layouts]
 
       import Plug.Conn
-      import PgSiphonManagementWeb.Gettext
+
+      use Gettext, backend: PgSiphonManagementWeb.Gettext
 
       unquote(verified_routes())
     end

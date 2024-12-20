@@ -1,7 +1,7 @@
 defmodule PgSiphonManagementWeb.StatusLive do
   use PgSiphonManagementWeb, :live_view
 
-  @max_display_records 500
+  @max_display_records 5000
 
   alias PgSiphonManagementWeb.ActiveConnectionsComponent
   alias PgSiphonManagementWeb.ExporterComponent
@@ -11,7 +11,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
   def mount(_params, _session, socket) do
     if connected?(socket) do
       PubSub.subscribe(:broadcaster, "message_frames")
-      PubSub.subscribe(PgSiphonManagement.PubSub, "recording")
+      PubSub.subscribe(:recording_notifier, "recording")
     end
 
     %{recording: recording} = :sys.get_state(:query_server)
@@ -169,7 +169,39 @@ defmodule PgSiphonManagementWeb.StatusLive do
                   [<%= message.message.type %>]
                 </span>
                 <span class="break-all">
-                  <%= message.message.payload %>
+                  <%= case message.message.type do %>
+                    <% "P" -> %>
+                      <% prep_statement = message.message.extras[:prepared_statement] %>
+                      <%= if prep_statement != "" do %>
+                        <span class="text-red-400">
+                          [<%= prep_statement %>]
+                        </span>
+                      <% end %>
+
+                      <span class="text-slate-200">
+                        <%= message.message.payload %>
+                      </span>
+                    <% "B" -> %>
+                      <%!-- [1734696798331] [B] %{portal_name: "", statement_name: "a3", param_fmt_count: 2, param_fmts: [0, 0], param_count: 2, param_vals: [{1, "f"}, {1, "1"}], res_fmt_count: 1, res_fmts: [0]} a3f1 --%>
+                      <% extras = message.message.extras %>
+                      <%= if extras[:statement_name] != "" do %>
+                        <span class="text-red-400">
+                          [Stmt: <%= extras[:statement_name] %>]
+                        </span>
+                      <% end %>
+                      <%= for {_key, value} <- extras[:param_vals] do %>
+                        <span class="text-yellow-400">
+                          [<%= value %>]
+                        </span>
+                      <% end %>
+                      <span class="text-fuchsia-400">
+                        [Param Count: <%= extras[:param_count] %>]
+                      </span>
+                    <% _ -> %>
+                      <span class="text-slate-100">
+                        <%= message.message.payload %>
+                      </span>
+                  <% end %>
                 </span>
               </p>
             </div>
@@ -207,7 +239,8 @@ defmodule PgSiphonManagementWeb.StatusLive do
     socket =
       socket
       |> stream(:messages, Enum.reverse(messages_ids))
-      |> handle_overflow(final_counter)
+
+    # |> handle_overflow(final_counter)
 
     {:noreply, assign(socket, counter: final_counter)}
   end

@@ -3,6 +3,6 @@ defmodule PgSiphonManagementWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "PgSiphonManagement"
+    assert html_response(conn, 200) =~ "PgSiphon Management"
   end
 end
