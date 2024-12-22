@@ -71,6 +71,13 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
           <% end %>
         </div>
       </div>
+      <div class="flex justify-end space-x-2 items-center mt-4">
+        <.pagination_text
+          start_page={@options.offset + 1}
+          end_page={min(@options.max + @options.offset, @analysis.content["total_count"])}
+          total_count={total_count(@analysis, @options)}
+        />
+      </div>
     </div>
     """
   end
