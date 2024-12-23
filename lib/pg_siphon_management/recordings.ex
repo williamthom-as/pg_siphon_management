@@ -42,6 +42,17 @@ defmodule PgSiphonManagement.Recordings do
     |> Enum.sort_by(& &1.creation_time, :desc)
   end
 
+  def get_recording_total_count() do
+    root_dir =
+      Application.get_env(:pg_siphon, :export)
+      |> Keyword.get(:export_dir)
+
+    root_dir
+    |> File.ls!()
+    |> Enum.filter(&String.ends_with?(&1, ".raw.csv"))
+    |> Enum.count()
+  end
+
   def get_recording(file_name) do
     full_path = expand_file_name(file_name)
 

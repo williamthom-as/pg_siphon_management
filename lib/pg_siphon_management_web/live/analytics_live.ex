@@ -25,6 +25,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     # Recordings needs to do more lifting, returning simple structs to be updated.
     # These should hold - is being recorded, is in progress, has analysis.
     recordings = Recordings.list_recordings(card_list_options)
+    recordings_total_count = Recordings.get_recording_total_count()
 
     %{recording: recording, file_name: recording_file_name} =
       :sys.get_state(:recording_server)
@@ -35,6 +36,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
         recordings: recordings,
         card_list_options: card_list_options,
         recording_list_options: recording_list_options,
+        recordings_total_count: recordings_total_count,
         page_title: "Analytics",
         in_progress: [],
         recording: recording,
@@ -239,8 +241,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
             label="Max"
             name="max"
             value={@options.max}
-            options={[10, 20, 50, 100]}
-            phx-change="change_search_max"
+            options={[1, 2, 10, 20, 50, 100]}
+            phx-click="change_search_max"
           />
         </div>
       </div>
@@ -492,6 +494,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   end
 
   def handle_event("change_search_max", %{"value" => max}, socket) do
+    IO.puts "Here!!!!"
+
     options = socket.assigns.card_list_options
     options = %{options | max: String.to_integer(max)}
 
