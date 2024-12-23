@@ -24,7 +24,7 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
               label="Max"
               options={[10, 20, 50, 100]}
               class="w-full"
-              phx-click="change_max"
+              phx-click="change_file_rec_max"
             />
           </div>
         </div>
@@ -34,12 +34,12 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
             end_page={min(@options.max + @options.offset, @analysis.content["total_count"])}
             total_count={total_count(@analysis, @options)}
           />
-          <.button phx-click="pagination" phx-value-change="decrement">
+          <.button phx-click="file_rec_pagination" phx-value-change="decrement">
             <div class="flex items-center">
               <Heroicons.icon name="chevron-double-left" type="mini" class="h-4 w-4" /> Previous
             </div>
           </.button>
-          <.button phx-click="pagination" phx-value-change="increment">
+          <.button phx-click="file_rec_pagination" phx-value-change="increment">
             <div class="flex items-center">
               Next <Heroicons.icon name="chevron-double-right" type="mini" class="h-4 w-4" />
             </div>
@@ -70,6 +70,13 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
             </div>
           <% end %>
         </div>
+      </div>
+      <div class="flex justify-end space-x-2 items-center mt-4">
+        <.pagination_text
+          start_page={@options.offset + 1}
+          end_page={min(@options.max + @options.offset, @analysis.content["total_count"])}
+          total_count={total_count(@analysis, @options)}
+        />
       </div>
     </div>
     """

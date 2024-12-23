@@ -11,9 +11,9 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     end
 
     card_list_options = %{
-      filter: nil,
       offset: 0,
-      max: 10
+      max: 10,
+      filter: nil
     }
 
     recording_list_options = %{
@@ -25,6 +25,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     # Recordings needs to do more lifting, returning simple structs to be updated.
     # These should hold - is being recorded, is in progress, has analysis.
     recordings = Recordings.list_recordings(card_list_options)
+    recordings_total_count = Recordings.get_recording_total_count()
 
     %{recording: recording, file_name: recording_file_name} =
       :sys.get_state(:recording_server)
@@ -35,6 +36,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
         recordings: recordings,
         card_list_options: card_list_options,
         recording_list_options: recording_list_options,
+        recordings_total_count: recordings_total_count,
         page_title: "Analytics",
         in_progress: [],
         recording: recording,
@@ -83,13 +85,14 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
           <h5 class="mb-4 text-base font-mono text-md text-gray-200">
             Recorded Logs
           </h5>
-          <.search_form></.search_form>
+          <.search_form options={@card_list_options}></.search_form>
           <.cards
             recordings={@recordings}
             selected_file={@selected_file}
             recording_file_name={@recording_file_name}
           >
           </.cards>
+          <.search_footer options={@card_list_options} total_count={@recordings_total_count}></.search_footer>
         </div>
       </:left_section>
       <:right_section>
@@ -218,18 +221,54 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   def search_form(assigns) do
     ~H"""
     <div class="">
-      <form phx-change="search">
-        <.input
-          name="search"
-          value=""
-          label="Search"
-          placeholder="Enter file name to search"
-          autocomplete="off"
-          type="text"
-          phx-debounce={400}
-        />
-      </form>
+      <div class="flex items-center gap-4">
+        <div class="flex-1">
+          <form phx-change="search">
+            <.input
+              name="search"
+              value=""
+              label="Search"
+              placeholder="Enter file name to search"
+              autocomplete="off"
+              type="text"
+              phx-debounce={400}
+            />
+          </form>
+        </div>
+        <div class="w-16">
+          <.input
+            type="select"
+            label="Max"
+            name="max"
+            value={@options.max}
+            options={[1, 2, 10, 20, 50, 100]}
+            phx-click="change_search_max"
+          />
+        </div>
+      </div>
     </div>
+    """
+  end
+
+  def search_footer(assigns) do
+    ~H"""
+      <div class="flex justify-between space-x-2 items-center mt-4">
+        <.button phx-click="search_pagination" phx-value-change="decrement">
+          <div class="flex items-center">
+            <Heroicons.icon name="chevron-double-left" type="mini" class="h-4 w-4" />
+          </div>
+        </.button>
+        <.pagination_text
+          start_page={@options.offset + 1}
+          end_page={min(@options.max + @options.offset, @total_count)}
+          total_count={@total_count}
+        />
+        <.button phx-click="search_pagination" phx-value-change="increment">
+          <div class="flex items-center">
+            <Heroicons.icon name="chevron-double-right" type="mini" class="h-4 w-4" />
+          </div>
+        </.button>
+      </div>
     """
   end
 
@@ -390,7 +429,34 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     {:noreply, assign(socket, in_progress: [file.file_name], analysis: nil)}
   end
 
-  def handle_event("pagination", %{"change" => "decrement"}, socket) do
+  def handle_event("search_pagination", %{"change" => "decrement"}, socket) do
+    options = socket.assigns.card_list_options
+
+    options = %{
+      options
+      | offset: max(options.offset - options.max, 0)
+    }
+
+    assign_card_list(socket, options)
+  end
+
+  def handle_event("search_pagination", %{"change" => "increment"}, socket) do
+    options = socket.assigns.card_list_options
+    total_count = socket.assigns.recordings_total_count
+
+    if options.offset + options.max < total_count do
+      options = %{
+        options
+        | offset: options.offset + options.max
+      }
+
+      assign_card_list(socket, options)
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("file_rec_pagination", %{"change" => "decrement"}, socket) do
     options = socket.assigns.recording_list_options
 
     options = %{
@@ -401,15 +467,20 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     assign_analysis(socket, options)
   end
 
-  def handle_event("pagination", %{"change" => "increment"}, socket) do
+  def handle_event("file_rec_pagination", %{"change" => "increment"}, socket) do
     options = socket.assigns.recording_list_options
+    total_count = socket.assigns.analysis.content["total_count"]
 
-    options = %{
-      options
-      | offset: options.offset + options.max
-    }
+    if options.offset + options.max < total_count do
+      options = %{
+        options
+        | offset: options.offset + options.max
+      }
 
-    assign_analysis(socket, options)
+      assign_analysis(socket, options)
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("toggle_filter_message_type", %{"key" => key, "value" => "on"}, socket) do
@@ -432,7 +503,14 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     assign_analysis(socket, options)
   end
 
-  def handle_event("change_max", %{"value" => max}, socket) do
+  def handle_event("change_search_max", %{"value" => max}, socket) do
+    options = socket.assigns.card_list_options
+    options = %{options | max: String.to_integer(max)}
+
+    assign_card_list(socket, options)
+  end
+
+  def handle_event("change_file_rec_max", %{"value" => max}, socket) do
     options = socket.assigns.recording_list_options
     options = %{options | max: String.to_integer(max)}
 
@@ -508,5 +586,16 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
        analysis: analysis,
        recording_list_options: options
      )}
+  end
+
+  defp assign_card_list(socket, options) do
+    recordings = Recordings.list_recordings(options)
+
+    {:noreply,
+      assign(
+        socket,
+        recordings: recordings,
+        card_list_options: options
+    )}
   end
 end
