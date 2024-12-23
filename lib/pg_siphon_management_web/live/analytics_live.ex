@@ -92,7 +92,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
             recording_file_name={@recording_file_name}
           >
           </.cards>
-          <.search_footer options={@card_list_options}></.search_footer>
+          <.search_footer options={@card_list_options} total_count={@recordings_total_count}></.search_footer>
         </div>
       </:left_section>
       <:right_section>
@@ -259,9 +259,9 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
           </div>
         </.button>
         <.pagination_text
-            start_page={@options.offset + 1}
-            end_page={min(@options.max + @options.offset, 10)}
-            total_count={10}
+          start_page={@options.offset + 1}
+          end_page={min(@options.max + @options.offset, @total_count)}
+          total_count={@total_count}
         />
         <.button phx-click="search_pagination" phx-value-change="increment">
           <div class="flex items-center">
@@ -442,13 +442,18 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def handle_event("search_pagination", %{"change" => "increment"}, socket) do
     options = socket.assigns.card_list_options
+    total_count = socket.assigns.recordings_total_count
 
-    options = %{
-      options
-      | offset: options.offset + options.max
-    }
+    if options.offset + options.max < total_count do
+      options = %{
+        options
+        | offset: options.offset + options.max
+      }
 
-    assign_card_list(socket, options)
+      assign_card_list(socket, options)
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("file_rec_pagination", %{"change" => "decrement"}, socket) do
