@@ -469,13 +469,18 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def handle_event("file_rec_pagination", %{"change" => "increment"}, socket) do
     options = socket.assigns.recording_list_options
+    total_count = socket.assigns.analysis.content["total_count"]
 
-    options = %{
-      options
-      | offset: options.offset + options.max
-    }
+    if options.offset + options.max < total_count do
+      options = %{
+        options
+        | offset: options.offset + options.max
+      }
 
-    assign_analysis(socket, options)
+      assign_analysis(socket, options)
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("toggle_filter_message_type", %{"key" => key, "value" => "on"}, socket) do
@@ -499,8 +504,6 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   end
 
   def handle_event("change_search_max", %{"value" => max}, socket) do
-    IO.puts "Here!!!!"
-
     options = socket.assigns.card_list_options
     options = %{options | max: String.to_integer(max)}
 
