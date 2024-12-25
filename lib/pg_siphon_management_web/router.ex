@@ -18,7 +18,7 @@ defmodule PgSiphonManagementWeb.Router do
     pipe_through :browser
     live "/", StatusLive, :proxy
     live "/analytics", AnalyticsLive, :analytics
-    live "/comparison", ComparisonLive, :comparison
+    live "/query_breakdown", QueryBreakdownLive, :query_breakdown
   end
 
   # Other scopes may use custom stacks.
