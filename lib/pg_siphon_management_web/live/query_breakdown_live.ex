@@ -4,42 +4,43 @@ defmodule PgSiphonManagementWeb.QueryBreakdownLive do
   alias PgSiphonManagement.Persistence.QueryBreakdownRequest
 
   def mount(_params, _session, socket) do
-    {_, query_changeset} = QueryBreakdownRequest.create(%{})
+    {_, changeset} = QueryBreakdownRequest.create(%{})
 
-    {:ok, assign(socket, form: to_form(query_changeset))}
+    {:ok,
+      socket
+      |> assign(form: to_form(changeset))
+      |> assign(query: nil)
+      |> assign(breakdown: nil)
+    }
   end
 
   def render(assigns) do
     ~H"""
-    <div>
       <.two_columns>
         <:left_section>
-          <h5 class="mb-4 text-base font-mono text-md text-gray-200">
-            Query Breakdown
-          </h5>
           <.query_form form={@form}></.query_form>
         </:left_section>
         <:right_section>
           <div class="text-gray-600">
-            Here!
+            <%= @query %>
+            <%= inspect(@breakdown) %>
           </div>
         </:right_section>
       </.two_columns>
-    </div>
     """
   end
 
   def query_form(assigns) do
     ~H"""
-    <div class="">
+    <div class="wrapper">
       <div class="flex items-center gap-4">
         <div class="flex-1">
-          <.form for={@form} id="query-breakdown-form" phx-submit="search">
+          <.form for={@form} id="query-breakdown-form" phx-submit="submit">
             <.input
               type="textarea"
               field={@form[:query]}
-              value=""
-              placeholder="Enter query to provide breakdown"
+              label="Query"
+              placeholder="Enter your SQL query to provide breakdown"
               autocomplete="off"
               phx-debounce={400}
             />
@@ -56,17 +57,20 @@ defmodule PgSiphonManagementWeb.QueryBreakdownLive do
     """
   end
 
-  def handle_event("search", %{"query_breakdown_request" => %{"query" => _query}} = f_params, socket) do
+  def handle_event("submit", %{"query_breakdown_request" => %{"query" => query} = f_params}, socket) do
     case QueryBreakdownRequest.create(f_params) do
       {:ok, _new_request} ->
-        # Do the thing!
+        new_changeset = QueryBreakdownRequest.changeset(%QueryBreakdownRequest{}, %{"query" => query})
 
+        breakdown = with {:ok, breakdown} <- PgQuery.parse(query), do: breakdown
 
-        {:noreply, socket}
-
+        {:noreply,
+          socket
+          |> assign(:form, to_form(new_changeset))
+          |> assign(:query, query)
+          |> assign(:breakdown, breakdown)
+        }
       {:error, changeset} ->
-        IO.puts "in error"
-
         changeset =
           changeset
           |> Map.put(:action, :validate)
