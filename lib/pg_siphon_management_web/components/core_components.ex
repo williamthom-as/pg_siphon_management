@@ -356,8 +356,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
         id={@id}
         name={@name}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6 min-h-[6rem]",
-          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          "bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none sm:leading-6 min-h-[6rem] focus:ring-2 focus:ring-blue-500 w-full mb-2",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}

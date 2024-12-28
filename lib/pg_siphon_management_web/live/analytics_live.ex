@@ -597,5 +597,5 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
         recordings: recordings,
         card_list_options: options
     )}
-  end
+    end
 end
