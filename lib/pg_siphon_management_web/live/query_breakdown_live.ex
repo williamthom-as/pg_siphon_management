@@ -23,7 +23,18 @@ defmodule PgSiphonManagementWeb.QueryBreakdownLive do
         <:right_section>
           <div class="text-gray-600">
             <%= @query %>
-            <%= inspect(@breakdown) %>
+
+            <%= if @breakdown do %>
+              <div class="mt-4">
+                <h2 class="text-lg font-semibold">Breakdown</h2>
+                <%= for stmt <- @breakdown.stmts do %>
+                  <div class="mt-4">
+                    <h3 class="text-base font-semibold">Statement</h3>
+                    <pre><%= inspect stmt %></pre>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
           </div>
         </:right_section>
       </.two_columns>
@@ -78,5 +89,4 @@ defmodule PgSiphonManagementWeb.QueryBreakdownLive do
         {:noreply, socket |> assign(:form, to_form(changeset))}
     end
   end
-
 end
