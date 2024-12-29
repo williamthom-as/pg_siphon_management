@@ -53,12 +53,46 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
             <div class="flex-1 font-bold ml-4">Message</div>
             <div class="w-24 font-bold">Timestamp</div>
           </div>
-          <%= for {{_, [type, message, timestamp]}, _idx} <- Enum.with_index(@analysis.replay_log) do %>
+          <%= for {{_, [type, message, timestamp, extras]}, _idx} <- Enum.with_index(@analysis.replay_log) do %>
             <% msg_colour = PgMsgColourMapper.call(type) %>
             <div class={"flex flex-row p-2 py-1 text-gray-300 items-center bg-#{msg_colour}-500 bg-opacity-10 rounded-sm mt-1"}>
-              <div class={"w-12 text-#{msg_colour}-400 text-xs text-center"}>[<%= type %>]</div>
+              <div class={"w-12 text-#{msg_colour}-400 text-xs text-center"}>
+                [<%= type %>]
+              </div>
               <div class="flex-1 overflow-auto font-mono text-gray-100 text-xs leading-relaxed scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                <.sql_fmt message={message} />
+                <span class="break-all">
+                  <%= case type do %>
+                    <% "P" -> %>
+                      <% prep_statement = extras["prepared_statement"] %>
+                      <%= if prep_statement != "" || prep_statement != [] do %>
+                        <div class="text-emerald-600 mb-2">
+                          [Prepared Statement: <%= prep_statement %>]
+                        </div>
+                      <% end %>
+
+                      <span class="text-slate-200">
+                        <.sql_fmt message={message} />
+                      </span>
+                    <% "B" -> %>
+                      <%= if extras["statement_name"] != "" do %>
+                        <span class="text-red-400">
+                          [Stmt: <%= extras["statement_name"] %>]
+                        </span>
+                      <% end %>
+                      <span class="text-fuchsia-400">
+                        Params (<%= extras["param_count"] %>):
+                      </span>
+                      <%= for value <- extras["param_vals"] do %>
+                        <span class="text-yellow-400">
+                          [<%= value %>]
+                        </span>
+                      <% end %>
+                    <% _ -> %>
+                      <span class="text-slate-100">
+                        <.sql_fmt message={message} />
+                      </span>
+                  <% end %>
+                </span>
               </div>
               <div class="w-24 text-gray-300 text-xs text-center">
                 <.format_ts
@@ -93,10 +127,8 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
       )
 
     ~H"""
-    <div class="max-h-96">
-      <pre>
-      <%= raw(@formatted_sql) %>
-      </pre>
+    <div class="max-h-96 my-2">
+      <pre class="whitespace-pre-wrap"><%= raw(String.trim(@formatted_sql)) %></pre>
     </div>
     """
   end
