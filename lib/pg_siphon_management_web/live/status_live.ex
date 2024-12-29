@@ -191,7 +191,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
                       <span class="text-fuchsia-400">
                         Params (<%= extras[:param_count] %>):
                       </span>
-                      <%= for {_key, value} <- extras[:param_vals] do %>
+                      <%= for value <- extras[:param_vals] do %>
                         <span class="text-yellow-400">
                           [<%= value %>]
                         </span>
