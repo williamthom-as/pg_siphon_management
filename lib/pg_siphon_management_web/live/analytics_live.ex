@@ -253,21 +253,23 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   def search_footer(assigns) do
     ~H"""
       <div class="flex justify-between space-x-2 items-center mt-4">
-        <.button phx-click="search_pagination" phx-value-change="decrement">
-          <div class="flex items-center">
-            <Heroicons.icon name="chevron-double-left" type="mini" class="h-4 w-4" />
-          </div>
-        </.button>
-        <.pagination_text
-          start_page={@options.offset + 1}
-          end_page={min(@options.max + @options.offset, @total_count)}
-          total_count={@total_count}
-        />
-        <.button phx-click="search_pagination" phx-value-change="increment">
-          <div class="flex items-center">
-            <Heroicons.icon name="chevron-double-right" type="mini" class="h-4 w-4" />
-          </div>
-        </.button>
+        <%= if @total_count > 0 do %>
+          <.button phx-click="search_pagination" phx-value-change="decrement">
+            <div class="flex items-center">
+              <Heroicons.icon name="chevron-double-left" type="mini" class="h-4 w-4" />
+            </div>
+          </.button>
+          <.pagination_text
+            start_page={@options.offset + 1}
+            end_page={min(@options.max + @options.offset, @total_count)}
+            total_count={@total_count}
+          />
+          <.button phx-click="search_pagination" phx-value-change="increment">
+            <div class="flex items-center">
+              <Heroicons.icon name="chevron-double-right" type="mini" class="h-4 w-4" />
+            </div>
+          </.button>
+        <% end %>
       </div>
     """
   end
