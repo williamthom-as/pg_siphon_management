@@ -172,7 +172,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
                   <%= case message.message.type do %>
                     <% "P" -> %>
                       <% prep_statement = message.message.extras[:prepared_statement] %>
-                      <%= if prep_statement != "" do %>
+                      <%= if !Enum.empty?(prep_statement) do %>
                         <span class="text-red-400">
                           [<%= prep_statement %>]
                         </span>

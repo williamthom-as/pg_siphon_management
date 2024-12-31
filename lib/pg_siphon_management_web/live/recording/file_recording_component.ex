@@ -64,7 +64,7 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
                   <%= case type do %>
                     <% "P" -> %>
                       <% prep_statement = extras["prepared_statement"] %>
-                      <%= if prep_statement != "" || prep_statement != [] do %>
+                      <%= if !Enum.empty?(prep_statement) do %>
                         <div class="text-emerald-600 mb-2">
                           [Prepared Statement: <%= prep_statement %>]
                         </div>
@@ -79,7 +79,7 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
                           [Stmt: <%= extras["statement_name"] %>]
                         </span>
                       <% end %>
-                      <span class="text-fuchsia-400">
+                      <span class="text-yellow-600">
                         Params (<%= extras["param_count"] %>):
                       </span>
                       <%= for value <- extras["param_vals"] do %>
