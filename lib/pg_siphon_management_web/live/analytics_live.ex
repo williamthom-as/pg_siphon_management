@@ -415,6 +415,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
      assign(
        socket,
        recordings: Recordings.list_recordings(socket.assigns.card_list_options),
+       recordings_total_count: Recordings.get_recording_total_count(),
        selected_file: selected_file,
        analysis: analysis
      )}
