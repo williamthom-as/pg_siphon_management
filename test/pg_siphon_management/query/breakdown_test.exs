@@ -67,4 +67,11 @@ defmodule PgSiphonManagement.Query.BreakdownTest do
     }
   end
 
+  test "call/1 returns table for valid delete query" do
+    assert Breakdown.call("DELETE FROM my_table WHERE id = 1") == {
+      :ok,
+      [delete: %{from_clause: "my_table"}]
+    }
+  end
+
 end

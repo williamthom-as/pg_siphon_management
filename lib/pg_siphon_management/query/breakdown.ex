@@ -35,6 +35,13 @@ defmodule PgSiphonManagement.Query.Breakdown do
     ]
   end
 
+  defp analyse_stmt([%PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:delete_stmt, delete_stmt}}} = _stmt | rest]) do
+    [
+      {:delete, handle_delete_stmt(delete_stmt)}
+      | analyse_stmt(rest)
+    ]
+  end
+
   defp analyse_stmt(_node), do: []
 
   defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: [], larg: larg, rarg: rarg} = _stmt) do
@@ -71,6 +78,18 @@ defmodule PgSiphonManagement.Query.Breakdown do
   end
 
   defp handle_insert_stmt(%PgQuery.InsertStmt{} = _stmt) do
+    %{
+      from_clause: nil
+    }
+  end
+
+  defp handle_delete_stmt(%PgQuery.DeleteStmt{relation: %PgQuery.RangeVar{relname: table_name}} = _stmt) do
+    %{
+      from_clause: table_name
+    }
+  end
+
+  defp handle_delete_stmt(%PgQuery.DeleteStmt{} = _stmt) do
     %{
       from_clause: nil
     }
