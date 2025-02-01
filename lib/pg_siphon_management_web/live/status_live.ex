@@ -283,26 +283,26 @@ defmodule PgSiphonManagementWeb.StatusLive do
      )}
   end
 
-  @spec handle_overflow(Phoenix.LiveView.Socket.t(), non_neg_integer()) ::
-          Phoenix.LiveView.Socket.t()
-  defp handle_overflow(socket, counter) do
-    cond do
-      counter >= @max_display_records ->
-        start_id = counter - @max_display_records
+  # @spec handle_overflow(Phoenix.LiveView.Socket.t(), non_neg_integer()) ::
+  #         Phoenix.LiveView.Socket.t()
+  # defp handle_overflow(socket, counter) do
+  #   cond do
+  #     counter >= @max_display_records ->
+  #       start_id = counter - @max_display_records
 
-        remove_ids =
-          0..start_id
-          |> Enum.map(fn id -> "messages-#{id}" end)
+  #       remove_ids =
+  #         0..start_id
+  #         |> Enum.map(fn id -> "messages-#{id}" end)
 
-        # reduce with socket acc
-        Enum.reduce(remove_ids, socket, fn id, acc ->
-          stream_delete_by_dom_id(acc, :messages, id)
-        end)
+  #       # reduce with socket acc
+  #       Enum.reduce(remove_ids, socket, fn id, acc ->
+  #         stream_delete_by_dom_id(acc, :messages, id)
+  #       end)
 
-      true ->
-        socket
-    end
-  end
+  #     true ->
+  #       socket
+  #   end
+  # end
 
   defp assign_connections(socket) do
     socket

@@ -11,7 +11,6 @@ defmodule PgSiphonManagement.Query.Breakdown do
   end
 
   defp analyse_query(%PgQuery.ParseResult{version: _version, stmts: stmts} = _parsed_query) do
-    IO.inspect stmts
     analyse_stmt(stmts)
   end
 
@@ -22,18 +21,55 @@ defmodule PgSiphonManagement.Query.Breakdown do
     ]
   end
 
+  defp analyse_stmt([%PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:update_stmt, update_stmt}}} = _stmt | rest]) do
+    [
+      {:update, handle_update_stmt(update_stmt)}
+      | analyse_stmt(rest)
+    ]
+  end
+
   defp analyse_stmt(_node), do: []
 
-  defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: _from_clause}) do
+  defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: [], larg: larg, rarg: rarg} = _stmt) do
+    IO.puts "has larg and rarg"
+
+    [handle_select_stmt(larg), handle_select_stmt(rarg)]
+  end
+
+  defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: from_clause} = stmt) do
+    IO.puts "in select from"
+    IO.inspect stmt
+
     %{
-      from_clause: "my_table"
+      from_clause: extract_relnames(from_clause)
     }
   end
 
-  defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: _from_clause}) do
+  defp handle_update_stmt(%PgQuery.UpdateStmt{relation: %PgQuery.RangeVar{relname: table_name}} = _stmt) do
     %{
-      from_clause: "my_table"
+      from_clause: table_name
     }
+  end
+
+  defp extract_relnames(nodes) do
+    results = for %PgQuery.Node{} = node <- nodes do
+      extract_relname(node)
+    end
+
+    results
+    |> List.flatten()
+  end
+
+  def extract_relname(%PgQuery.Node{} = node) do
+    case node do
+      %PgQuery.Node{node: {:range_var, %PgQuery.RangeVar{relname: rel}}} ->
+        rel
+      %PgQuery.Node{node: {:join_expr, %PgQuery.JoinExpr{larg: larg, rarg: rarg}}} ->
+        l_tbl = extract_relname(larg)
+        r_tbl = extract_relname(rarg)
+
+        [l_tbl, r_tbl]
+    end
   end
 
 end
