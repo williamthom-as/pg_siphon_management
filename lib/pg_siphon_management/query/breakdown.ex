@@ -1,5 +1,9 @@
 defmodule PgSiphonManagement.Query.Breakdown do
 
+  require Logger
+
+  # TODO: add vacuum/analyze.
+
   def call(raw_query) do
     case PgQuery.parse(raw_query) do
       {:ok, parsed_query} ->
@@ -42,12 +46,33 @@ defmodule PgSiphonManagement.Query.Breakdown do
     ]
   end
 
-  defp analyse_stmt(_node), do: []
+  defp analyse_stmt(node) do
+    Logger.error("I dont know what this is, or I havent planned for it chief: #{inspect(node)}")
+
+    []
+  end
+
+  defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: [], larg: nil, rarg: nil} = _stmt) do
+    IO.puts "has nothing select"
+
+    %{
+      from_clause: nil
+    }
+  end
 
   defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: [], larg: larg, rarg: rarg} = _stmt) do
     IO.puts "has larg and rarg"
 
-    [handle_select_stmt(larg), handle_select_stmt(rarg)]
+    larg_extract = handle_select_stmt(larg)
+    rarg_extract = handle_select_stmt(rarg)
+
+    %{
+      from_clause: [
+        larg_extract.from_clause,
+        rarg_extract.from_clause
+      ]
+      |> List.flatten()
+    }
   end
 
   defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: from_clause} = stmt) do

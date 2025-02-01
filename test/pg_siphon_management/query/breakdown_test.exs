@@ -12,13 +12,11 @@ defmodule PgSiphonManagement.Query.BreakdownTest do
 
   test "call/1 select returns from tables when the query is valid with union" do
     assert Breakdown.call("SELECT * FROM my_table UNION SELECT * FROM another_table") ==
-      {:ok,
-             [
-               select: [
-                 %{from_clause: ["my_table"]},
-                 %{from_clause: ["another_table"]}
-               ]
-             ]
+      {
+        :ok,
+        [
+          select: %{from_clause: ["my_table", "another_table"]}
+        ]
       }
   end
 
@@ -72,6 +70,21 @@ defmodule PgSiphonManagement.Query.BreakdownTest do
       :ok,
       [delete: %{from_clause: "my_table"}]
     }
+  end
+
+  test "call/1 returns empty table for query that is valid, but doesnt reference a table" do
+    assert Breakdown.call("SELECT 1") == {:ok, [select: %{from_clause: nil}]}
+  end
+
+  test "call/1 returns empty table for query that is valid, but doesnt reference a table with union" do
+    assert Breakdown.call("SELECT 1 UNION SELECT 2") == {
+      :ok,
+      [select: %{from_clause: [nil, nil]}]
+    }
+  end
+
+  test "call/1 returns empty table for vacuum" do
+    assert Breakdown.call("ANALYZE VERBOSE my_table") == {:ok, []}
   end
 
 end
