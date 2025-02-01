@@ -28,6 +28,13 @@ defmodule PgSiphonManagement.Query.Breakdown do
     ]
   end
 
+  defp analyse_stmt([%PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:insert_stmt, insert_stmt}}} = _stmt | rest]) do
+    [
+      {:insert, handle_insert_stmt(insert_stmt)}
+      | analyse_stmt(rest)
+    ]
+  end
+
   defp analyse_stmt(_node), do: []
 
   defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: [], larg: larg, rarg: rarg} = _stmt) do
@@ -51,6 +58,24 @@ defmodule PgSiphonManagement.Query.Breakdown do
     }
   end
 
+  defp handle_update_stmt(%PgQuery.UpdateStmt{} = _stmt) do
+    %{
+      from_clause: nil
+    }
+  end
+
+  defp handle_insert_stmt(%PgQuery.InsertStmt{relation: %PgQuery.RangeVar{relname: table_name}} = _stmt) do
+    %{
+      from_clause: table_name
+    }
+  end
+
+  defp handle_insert_stmt(%PgQuery.InsertStmt{} = _stmt) do
+    %{
+      from_clause: nil
+    }
+  end
+
   defp extract_relnames(nodes) do
     results = for %PgQuery.Node{} = node <- nodes do
       extract_relname(node)
@@ -71,5 +96,4 @@ defmodule PgSiphonManagement.Query.Breakdown do
         [l_tbl, r_tbl]
     end
   end
-
 end

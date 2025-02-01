@@ -60,6 +60,11 @@ defmodule PgSiphonManagement.Query.BreakdownTest do
     assert Breakdown.call("UPDATE") == {:error, "invalid query"}
   end
 
-
+  test "call/1 returns table for valid insert query" do
+    assert Breakdown.call("INSERT INTO my_table (name, age) VALUES ('new_name', 30)") == {
+      :ok,
+      [insert: %{from_clause: "my_table"}]
+    }
+  end
 
 end
