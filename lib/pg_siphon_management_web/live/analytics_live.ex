@@ -188,7 +188,20 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                     </.kvp_entry>
                   <% end %>
                 </.dashboard_card>
-                <.dashboard_card title="Tables" class="col-span-1"></.dashboard_card>
+                <.dashboard_card title="Tables" class="col-span-1">
+                  <%= for {type, count} <- @analysis.content["tables"] do %>
+                    <.kvp_entry>
+                      <:key>
+                        <span class={"text-blue-400 text-xs font-mono"}>
+                          <%= type %>
+                        </span>
+                      </:key>
+                      <:value>
+                        <%= count %>
+                      </:value>
+                    </.kvp_entry>
+                  <% end %>
+                </.dashboard_card>
               </.dashboard_container>
               <.dashboard_container>
                 <.dashboard_card title="Replay Log" class="col-span-4">

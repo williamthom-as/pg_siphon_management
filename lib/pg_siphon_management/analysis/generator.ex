@@ -53,18 +53,35 @@ defmodule PgSiphonManagement.Analysis.Generator do
   end
 
   defp set_tables_hit(state, row) do
-
     query_result = Breakdown.call(Enum.at(row, 1))
-    IO.inspect query_result
 
     case query_result do
       {:ok, result} ->
         result
-        |> Enum.reduce(state, fn {operation, _from_clause}, acc ->
+        |> Enum.reduce(state, fn {operation, %{from_clause: table_arr}}, acc ->
+          IO.inspect table_arr
+
           Map.update!(acc, :operations, fn ops ->
             Map.update(ops, operation, 1, &(&1 + 1))
           end)
+
+          Map.update!(acc, :tables, fn tables ->
+            # if table_arr is array, then we need to loop through it, else we just update the count
+            cond do
+              is_list(table_arr) ->
+                Enum.reduce(table_arr, tables, fn table, acc2 ->
+                  Map.update(acc2, table, 1, &(&1 + 1))
+                end)
+
+              is_binary(table_arr) ->
+                Map.update(tables, table_arr, 1, &(&1 + 1))
+
+              true ->
+                tables
+            end
+          end)
         end)
+
       {:error, _} ->
         state
     end
