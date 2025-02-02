@@ -59,13 +59,11 @@ defmodule PgSiphonManagement.Analysis.Generator do
       {:ok, result} ->
         result
         |> Enum.reduce(state, fn {operation, %{from_clause: table_arr}}, acc ->
-          IO.inspect table_arr
-
-          Map.update!(acc, :operations, fn ops ->
+          acc = Map.update!(acc, :operations, fn ops ->
             Map.update(ops, operation, 1, &(&1 + 1))
           end)
 
-          Map.update!(acc, :tables, fn tables ->
+          acc = Map.update!(acc, :tables, fn tables ->
             # if table_arr is array, then we need to loop through it, else we just update the count
             cond do
               is_list(table_arr) ->
@@ -80,6 +78,8 @@ defmodule PgSiphonManagement.Analysis.Generator do
                 tables
             end
           end)
+
+          acc
         end)
 
       {:error, _} ->
