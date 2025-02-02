@@ -276,10 +276,15 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
     """
   end
 
+  attr :base_colspan, :integer, default: 4
+  slot :inner_block, required: true
+
   def dashboard_container(assigns) do
+    # inc to tell tw to use it lg:grid-cols-3
+
     ~H"""
     <div class="overflow-x-auto mb-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class={"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-#{@base_colspan} gap-4"}>
         <%= render_slot(@inner_block) %>
       </div>
     </div>

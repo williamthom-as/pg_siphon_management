@@ -10,6 +10,7 @@ defmodule PgSiphonManagement.Query.Breakdown do
         {:ok, analyse_query(parsed_query)}
 
       {:error, _} ->
+        Logger.warning("Invalid query: #{raw_query}")
         {:error, "invalid query"}
     end
   end
@@ -47,7 +48,7 @@ defmodule PgSiphonManagement.Query.Breakdown do
   end
 
   defp analyse_stmt(node) do
-    Logger.error("I dont know what this is, or I havent planned for it chief: #{inspect(node)}")
+    Logger.warning("I dont know what this is, or I havent planned for it chief: #{inspect(node)}")
 
     []
   end
@@ -77,7 +78,7 @@ defmodule PgSiphonManagement.Query.Breakdown do
 
   defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: from_clause} = stmt) do
     IO.puts "in select from"
-    IO.inspect stmt
+    # IO.inspect stmt
 
     %{
       from_clause: extract_relnames(from_clause)

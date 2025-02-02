@@ -142,8 +142,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                   </div>
                 </.dashboard_card>
               </.dashboard_container>
-              <.dashboard_container>
-                <.dashboard_card title="Message Type Counts" class="col-span-2">
+              <.dashboard_container base_colspan={3}>
+                <.dashboard_card title="Message Types" class="col-span-1">
                   <div class="font-mono text-gray-500 text-xs flex items-center mb-4">
                     <Heroicons.icon name="information-circle" type="mini" class="h-4 w-4 mr-2" />
                     Note: You can filter the replay log by toggling the message types.
@@ -174,7 +174,23 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                     </.kvp_entry>
                   <% end %>
                 </.dashboard_card>
-                <.dashboard_card title="Tables Impacted" class="col-span-2"></.dashboard_card>
+                <.dashboard_card title="Operations" class="col-span-1">
+                  <%= for {type, count} <- @analysis.content["operations"] do %>
+                    <.kvp_entry>
+                      <:key>
+                        <span class={"text-blue-400 text-xs font-mono"}>
+                          <%= type %>
+                        </span>
+                      </:key>
+                      <:value>
+                        <%= count %>
+                      </:value>
+                    </.kvp_entry>
+                  <% end %>
+                </.dashboard_card>
+                <.dashboard_card title="Tables" class="col-span-1"></.dashboard_card>
+              </.dashboard_container>
+              <.dashboard_container>
                 <.dashboard_card title="Replay Log" class="col-span-4">
                   <.live_component
                     module={PgSiphonManagementWeb.Recording.FileRecordingComponent}
@@ -600,5 +616,5 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
         recordings: recordings,
         card_list_options: options
     )}
-    end
+  end
 end

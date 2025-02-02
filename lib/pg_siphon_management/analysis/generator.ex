@@ -1,10 +1,13 @@
 defmodule PgSiphonManagement.Analysis.Generator do
+  alias Plug.Debugger
   alias PgSiphonManagement.Analysis.Generator
+  alias PgSiphonManagement.Query.Breakdown
   alias Phoenix.PubSub
 
   defstruct total_count: 0,
             message_type_count: %{},
-            tables_hit: %{},
+            tables: %{},
+            operations: %{},
             start_time: nil,
             end_time: nil,
             duration: nil
@@ -31,6 +34,7 @@ defmodule PgSiphonManagement.Analysis.Generator do
     |> set_total_count()
     |> set_message_counts(row)
     |> set_time(row)
+    |> set_tables_hit(row)
   end
 
   defp process({:error, _reason}, state), do: state
@@ -46,6 +50,24 @@ defmodule PgSiphonManagement.Analysis.Generator do
       message_type = Enum.at(row, 0)
       Map.update(message_type_count, message_type, 1, &(&1 + 1))
     end)
+  end
+
+  defp set_tables_hit(state, row) do
+
+    query_result = Breakdown.call(Enum.at(row, 1))
+    IO.inspect query_result
+
+    case query_result do
+      {:ok, result} ->
+        result
+        |> Enum.reduce(state, fn {operation, _from_clause}, acc ->
+          Map.update!(acc, :operations, fn ops ->
+            Map.update(ops, operation, 1, &(&1 + 1))
+          end)
+        end)
+      {:error, _} ->
+        state
+    end
   end
 
   defp set_time(%Generator{start_time: nil} = state, row) do
