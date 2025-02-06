@@ -4,6 +4,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   alias PgSiphonManagement.Recordings
   alias Phoenix.PubSub
 
+  require Logger
+
   def mount(_params, _session, socket) do
     if connected?(socket) do
       PubSub.subscribe(:recording_notifier, "recording")
@@ -92,7 +94,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
             recording_file_name={@recording_file_name}
           >
           </.cards>
-          <.search_footer options={@card_list_options} total_count={@recordings_total_count}></.search_footer>
+          <.search_footer options={@card_list_options} total_count={@recordings_total_count}>
+          </.search_footer>
         </div>
       </:left_section>
       <:right_section>
@@ -142,8 +145,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                   </div>
                 </.dashboard_card>
               </.dashboard_container>
-              <.dashboard_container>
-                <.dashboard_card title="Message Type Counts" class="col-span-2">
+              <.dashboard_container base_colspan={3}>
+                <.dashboard_card title="Message Types" class="col-span-1">
                   <div class="font-mono text-gray-500 text-xs flex items-center mb-4">
                     <Heroicons.icon name="information-circle" type="mini" class="h-4 w-4 mr-2" />
                     Note: You can filter the replay log by toggling the message types.
@@ -174,7 +177,36 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                     </.kvp_entry>
                   <% end %>
                 </.dashboard_card>
-                <.dashboard_card title="Tables Impacted" class="col-span-2"></.dashboard_card>
+                <.dashboard_card title="Operations" class="col-span-1">
+                  <%= for {type, count} <- @analysis.content["operations"] do %>
+                    <.kvp_entry>
+                      <:key>
+                        <span class="text-gray-200 text-xs font-mono">
+                          <%= type %>
+                        </span>
+                      </:key>
+                      <:value>
+                        <%= count %>
+                      </:value>
+                    </.kvp_entry>
+                  <% end %>
+                </.dashboard_card>
+                <.dashboard_card title="Tables" class="col-span-1">
+                  <%= for {type, count} <- @analysis.content["tables"] do %>
+                    <.kvp_entry>
+                      <:key>
+                        <span class="text-gray-200 text-xs font-mono">
+                          <%= type %>
+                        </span>
+                      </:key>
+                      <:value>
+                        <%= count %>
+                      </:value>
+                    </.kvp_entry>
+                  <% end %>
+                </.dashboard_card>
+              </.dashboard_container>
+              <.dashboard_container>
                 <.dashboard_card title="Replay Log" class="col-span-4">
                   <.live_component
                     module={PgSiphonManagementWeb.Recording.FileRecordingComponent}
@@ -252,25 +284,25 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def search_footer(assigns) do
     ~H"""
-      <div class="flex justify-between space-x-2 items-center mt-4">
-        <%= if @total_count > 0 do %>
-          <.button phx-click="search_pagination" phx-value-change="decrement">
-            <div class="flex items-center">
-              <Heroicons.icon name="chevron-double-left" type="mini" class="h-4 w-4" />
-            </div>
-          </.button>
-          <.pagination_text
-            start_page={@options.offset + 1}
-            end_page={min(@options.max + @options.offset, @total_count)}
-            total_count={@total_count}
-          />
-          <.button phx-click="search_pagination" phx-value-change="increment">
-            <div class="flex items-center">
-              <Heroicons.icon name="chevron-double-right" type="mini" class="h-4 w-4" />
-            </div>
-          </.button>
-        <% end %>
-      </div>
+    <div class="flex justify-between space-x-2 items-center mt-4">
+      <%= if @total_count > 0 do %>
+        <.button phx-click="search_pagination" phx-value-change="decrement">
+          <div class="flex items-center">
+            <Heroicons.icon name="chevron-double-left" type="mini" class="h-4 w-4" />
+          </div>
+        </.button>
+        <.pagination_text
+          start_page={@options.offset + 1}
+          end_page={min(@options.max + @options.offset, @total_count)}
+          total_count={@total_count}
+        />
+        <.button phx-click="search_pagination" phx-value-change="increment">
+          <div class="flex items-center">
+            <Heroicons.icon name="chevron-double-right" type="mini" class="h-4 w-4" />
+          </div>
+        </.button>
+      <% end %>
+    </div>
     """
   end
 
@@ -595,10 +627,10 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     recordings = Recordings.list_recordings(options)
 
     {:noreply,
-      assign(
-        socket,
-        recordings: recordings,
-        card_list_options: options
-    )}
-    end
+     assign(
+       socket,
+       recordings: recordings,
+       card_list_options: options
+     )}
+  end
 end

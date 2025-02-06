@@ -191,10 +191,12 @@ defmodule PgSiphonManagementWeb.StatusLive do
                       <span class="text-fuchsia-400">
                         Params (<%= extras[:param_count] %>):
                       </span>
-                      <%= for value <- extras[:param_vals] do %>
-                        <span class="text-yellow-400">
-                          [<%= value %>]
-                        </span>
+                      <%= if Map.has_key?(extras, :param_vals) do %>
+                        <%= for value <- extras[:param_vals] do %>
+                          <span class="text-yellow-400">
+                            [<%= List.last(value) %>]
+                          </span>
+                        <% end %>
                       <% end %>
                     <% _ -> %>
                       <span class="text-slate-100">
@@ -283,26 +285,26 @@ defmodule PgSiphonManagementWeb.StatusLive do
      )}
   end
 
-  @spec handle_overflow(Phoenix.LiveView.Socket.t(), non_neg_integer()) ::
-          Phoenix.LiveView.Socket.t()
-  defp handle_overflow(socket, counter) do
-    cond do
-      counter >= @max_display_records ->
-        start_id = counter - @max_display_records
+  # @spec handle_overflow(Phoenix.LiveView.Socket.t(), non_neg_integer()) ::
+  #         Phoenix.LiveView.Socket.t()
+  # defp handle_overflow(socket, counter) do
+  #   cond do
+  #     counter >= @max_display_records ->
+  #       start_id = counter - @max_display_records
 
-        remove_ids =
-          0..start_id
-          |> Enum.map(fn id -> "messages-#{id}" end)
+  #       remove_ids =
+  #         0..start_id
+  #         |> Enum.map(fn id -> "messages-#{id}" end)
 
-        # reduce with socket acc
-        Enum.reduce(remove_ids, socket, fn id, acc ->
-          stream_delete_by_dom_id(acc, :messages, id)
-        end)
+  #       # reduce with socket acc
+  #       Enum.reduce(remove_ids, socket, fn id, acc ->
+  #         stream_delete_by_dom_id(acc, :messages, id)
+  #       end)
 
-      true ->
-        socket
-    end
-  end
+  #     true ->
+  #       socket
+  #   end
+  # end
 
   defp assign_connections(socket) do
     socket

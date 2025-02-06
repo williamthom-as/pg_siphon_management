@@ -1,10 +1,13 @@
 defmodule PgSiphonManagement.Analysis.Generator do
+  alias Plug.Debugger
   alias PgSiphonManagement.Analysis.Generator
+  alias PgSiphonManagement.Query.Breakdown
   alias Phoenix.PubSub
 
   defstruct total_count: 0,
             message_type_count: %{},
-            tables_hit: %{},
+            tables: %{},
+            operations: %{},
             start_time: nil,
             end_time: nil,
             duration: nil
@@ -31,6 +34,7 @@ defmodule PgSiphonManagement.Analysis.Generator do
     |> set_total_count()
     |> set_message_counts(row)
     |> set_time(row)
+    |> set_tables_hit(row)
   end
 
   defp process({:error, _reason}, state), do: state
@@ -46,6 +50,41 @@ defmodule PgSiphonManagement.Analysis.Generator do
       message_type = Enum.at(row, 0)
       Map.update(message_type_count, message_type, 1, &(&1 + 1))
     end)
+  end
+
+  defp set_tables_hit(state, row) do
+    query_result = Breakdown.call(Enum.at(row, 1))
+
+    case query_result do
+      {:ok, result} ->
+        result
+        |> Enum.reduce(state, fn {operation, %{from_clause: table_arr}}, acc ->
+          acc = Map.update!(acc, :operations, fn ops ->
+            Map.update(ops, operation, 1, &(&1 + 1))
+          end)
+
+          acc = Map.update!(acc, :tables, fn tables ->
+            # if table_arr is array, then we need to loop through it, else we just update the count
+            cond do
+              is_list(table_arr) ->
+                Enum.reduce(table_arr, tables, fn table, acc2 ->
+                  Map.update(acc2, table, 1, &(&1 + 1))
+                end)
+
+              is_binary(table_arr) ->
+                Map.update(tables, table_arr, 1, &(&1 + 1))
+
+              true ->
+                tables
+            end
+          end)
+
+          acc
+        end)
+
+      {:error, _} ->
+        state
+    end
   end
 
   defp set_time(%Generator{start_time: nil} = state, row) do

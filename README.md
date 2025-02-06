@@ -35,3 +35,7 @@ config :pg_siphon, :proxy_server,
 ```
 
 If having issues with connecting to psql - read [here](https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach).
+
+## To Do
+- Audit rules to match against query behaviour.
+- Binary format for file export/analysis.
