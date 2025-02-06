@@ -4,6 +4,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
   alias PgSiphonManagement.Recordings
   alias Phoenix.PubSub
 
+  require Logger
+
   def mount(_params, _session, socket) do
     if connected?(socket) do
       PubSub.subscribe(:recording_notifier, "recording")
@@ -92,7 +94,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
             recording_file_name={@recording_file_name}
           >
           </.cards>
-          <.search_footer options={@card_list_options} total_count={@recordings_total_count}></.search_footer>
+          <.search_footer options={@card_list_options} total_count={@recordings_total_count}>
+          </.search_footer>
         </div>
       </:left_section>
       <:right_section>
@@ -178,7 +181,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                   <%= for {type, count} <- @analysis.content["operations"] do %>
                     <.kvp_entry>
                       <:key>
-                        <span class={"text-blue-400 text-xs font-mono"}>
+                        <span class="text-gray-200 text-xs font-mono">
                           <%= type %>
                         </span>
                       </:key>
@@ -192,7 +195,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                   <%= for {type, count} <- @analysis.content["tables"] do %>
                     <.kvp_entry>
                       <:key>
-                        <span class={"text-blue-400 text-xs font-mono"}>
+                        <span class="text-gray-200 text-xs font-mono">
                           <%= type %>
                         </span>
                       </:key>
@@ -281,25 +284,25 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
   def search_footer(assigns) do
     ~H"""
-      <div class="flex justify-between space-x-2 items-center mt-4">
-        <%= if @total_count > 0 do %>
-          <.button phx-click="search_pagination" phx-value-change="decrement">
-            <div class="flex items-center">
-              <Heroicons.icon name="chevron-double-left" type="mini" class="h-4 w-4" />
-            </div>
-          </.button>
-          <.pagination_text
-            start_page={@options.offset + 1}
-            end_page={min(@options.max + @options.offset, @total_count)}
-            total_count={@total_count}
-          />
-          <.button phx-click="search_pagination" phx-value-change="increment">
-            <div class="flex items-center">
-              <Heroicons.icon name="chevron-double-right" type="mini" class="h-4 w-4" />
-            </div>
-          </.button>
-        <% end %>
-      </div>
+    <div class="flex justify-between space-x-2 items-center mt-4">
+      <%= if @total_count > 0 do %>
+        <.button phx-click="search_pagination" phx-value-change="decrement">
+          <div class="flex items-center">
+            <Heroicons.icon name="chevron-double-left" type="mini" class="h-4 w-4" />
+          </div>
+        </.button>
+        <.pagination_text
+          start_page={@options.offset + 1}
+          end_page={min(@options.max + @options.offset, @total_count)}
+          total_count={@total_count}
+        />
+        <.button phx-click="search_pagination" phx-value-change="increment">
+          <div class="flex items-center">
+            <Heroicons.icon name="chevron-double-right" type="mini" class="h-4 w-4" />
+          </div>
+        </.button>
+      <% end %>
+    </div>
     """
   end
 
@@ -624,10 +627,10 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     recordings = Recordings.list_recordings(options)
 
     {:noreply,
-      assign(
-        socket,
-        recordings: recordings,
-        card_list_options: options
-    )}
+     assign(
+       socket,
+       recordings: recordings,
+       card_list_options: options
+     )}
   end
 end

@@ -280,7 +280,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
   slot :inner_block, required: true
 
   def dashboard_container(assigns) do
-    # inc to tell tw to use it lg:grid-cols-3
+    # inc to tell tw to use it lg:grid-cols-3 lg:grid-cols-4
 
     ~H"""
     <div class="overflow-x-auto mb-4">

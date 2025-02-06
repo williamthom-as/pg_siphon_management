@@ -191,10 +191,12 @@ defmodule PgSiphonManagementWeb.StatusLive do
                       <span class="text-fuchsia-400">
                         Params (<%= extras[:param_count] %>):
                       </span>
-                      <%= for value <- extras[:param_vals] do %>
-                        <span class="text-yellow-400">
-                          [<%= value %>]
-                        </span>
+                      <%= if Map.has_key?(extras, :param_vals) do %>
+                        <%= for value <- extras[:param_vals] do %>
+                          <span class="text-yellow-400">
+                            [<%= List.last(value) %>]
+                          </span>
+                        <% end %>
                       <% end %>
                     <% _ -> %>
                       <span class="text-slate-100">

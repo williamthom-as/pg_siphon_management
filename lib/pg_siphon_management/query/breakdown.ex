@@ -1,17 +1,22 @@
 defmodule PgSiphonManagement.Query.Breakdown do
-
   require Logger
 
   # TODO: add vacuum/analyze.
 
   def call(raw_query) do
-    case PgQuery.parse(raw_query) do
-      {:ok, parsed_query} ->
-        {:ok, analyse_query(parsed_query)}
+    try do
+      case PgQuery.parse(raw_query) do
+        {:ok, parsed_query} ->
+          {:ok, analyse_query(parsed_query)}
 
-      {:error, _} ->
-        Logger.warning("Invalid query: #{raw_query}")
-        {:error, "invalid query"}
+        {:error, _} ->
+          Logger.warning("Invalid query: #{raw_query}")
+          {:error, "invalid query"}
+      end
+    rescue
+      _e ->
+        Logger.error("error getting query breakdown: #{inspect(raw_query)}")
+        {:error, "error getting query breakdown"}
     end
   end
 
@@ -19,28 +24,36 @@ defmodule PgSiphonManagement.Query.Breakdown do
     analyse_stmt(stmts)
   end
 
-  defp analyse_stmt([%PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:select_stmt, select_stmt}}} = _stmt | rest]) do
+  defp analyse_stmt([
+         %PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:select_stmt, select_stmt}}} = _stmt | rest
+       ]) do
     [
       {:select, handle_select_stmt(select_stmt)}
       | analyse_stmt(rest)
     ]
   end
 
-  defp analyse_stmt([%PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:update_stmt, update_stmt}}} = _stmt | rest]) do
+  defp analyse_stmt([
+         %PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:update_stmt, update_stmt}}} = _stmt | rest
+       ]) do
     [
       {:update, handle_update_stmt(update_stmt)}
       | analyse_stmt(rest)
     ]
   end
 
-  defp analyse_stmt([%PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:insert_stmt, insert_stmt}}} = _stmt | rest]) do
+  defp analyse_stmt([
+         %PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:insert_stmt, insert_stmt}}} = _stmt | rest
+       ]) do
     [
       {:insert, handle_insert_stmt(insert_stmt)}
       | analyse_stmt(rest)
     ]
   end
 
-  defp analyse_stmt([%PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:delete_stmt, delete_stmt}}} = _stmt | rest]) do
+  defp analyse_stmt([
+         %PgQuery.RawStmt{stmt: %PgQuery.Node{node: {:delete_stmt, delete_stmt}}} = _stmt | rest
+       ]) do
     [
       {:delete, handle_delete_stmt(delete_stmt)}
       | analyse_stmt(rest)
@@ -53,39 +66,50 @@ defmodule PgSiphonManagement.Query.Breakdown do
     []
   end
 
-  defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: [], larg: nil, rarg: nil} = _stmt) do
-    IO.puts "has nothing select"
+  defp handle_select_stmt(
+         %PgQuery.SelectStmt{target_list: _target_list, from_clause: [], larg: nil, rarg: nil} =
+           _stmt
+       ) do
+    IO.puts("has nothing select")
 
     %{
       from_clause: nil
     }
   end
 
-  defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: [], larg: larg, rarg: rarg} = _stmt) do
-    IO.puts "has larg and rarg"
+  defp handle_select_stmt(
+         %PgQuery.SelectStmt{target_list: _target_list, from_clause: [], larg: larg, rarg: rarg} =
+           _stmt
+       ) do
+    IO.puts("has larg and rarg")
 
     larg_extract = handle_select_stmt(larg)
     rarg_extract = handle_select_stmt(rarg)
 
     %{
-      from_clause: [
-        larg_extract.from_clause,
-        rarg_extract.from_clause
-      ]
-      |> List.flatten()
+      from_clause:
+        [
+          larg_extract.from_clause,
+          rarg_extract.from_clause
+        ]
+        |> List.flatten()
     }
   end
 
-  defp handle_select_stmt(%PgQuery.SelectStmt{target_list: _target_list, from_clause: from_clause} = stmt) do
-    IO.puts "in select from"
-    # IO.inspect stmt
+  defp handle_select_stmt(
+         %PgQuery.SelectStmt{target_list: _target_list, from_clause: from_clause} = stmt
+       ) do
+    # IO.puts("in select from")
+    # IO.inspect(stmt)
 
     %{
       from_clause: extract_relnames(from_clause)
     }
   end
 
-  defp handle_update_stmt(%PgQuery.UpdateStmt{relation: %PgQuery.RangeVar{relname: table_name}} = _stmt) do
+  defp handle_update_stmt(
+         %PgQuery.UpdateStmt{relation: %PgQuery.RangeVar{relname: table_name}} = _stmt
+       ) do
     %{
       from_clause: table_name
     }
@@ -97,7 +121,9 @@ defmodule PgSiphonManagement.Query.Breakdown do
     }
   end
 
-  defp handle_insert_stmt(%PgQuery.InsertStmt{relation: %PgQuery.RangeVar{relname: table_name}} = _stmt) do
+  defp handle_insert_stmt(
+         %PgQuery.InsertStmt{relation: %PgQuery.RangeVar{relname: table_name}} = _stmt
+       ) do
     %{
       from_clause: table_name
     }
@@ -109,7 +135,9 @@ defmodule PgSiphonManagement.Query.Breakdown do
     }
   end
 
-  defp handle_delete_stmt(%PgQuery.DeleteStmt{relation: %PgQuery.RangeVar{relname: table_name}} = _stmt) do
+  defp handle_delete_stmt(
+         %PgQuery.DeleteStmt{relation: %PgQuery.RangeVar{relname: table_name}} = _stmt
+       ) do
     %{
       from_clause: table_name
     }
@@ -122,9 +150,10 @@ defmodule PgSiphonManagement.Query.Breakdown do
   end
 
   defp extract_relnames(nodes) do
-    results = for %PgQuery.Node{} = node <- nodes do
-      extract_relname(node)
-    end
+    results =
+      for %PgQuery.Node{} = node <- nodes do
+        extract_relname(node)
+      end
 
     results
     |> List.flatten()
@@ -134,11 +163,28 @@ defmodule PgSiphonManagement.Query.Breakdown do
     case node do
       %PgQuery.Node{node: {:range_var, %PgQuery.RangeVar{relname: rel}}} ->
         rel
+
+      %PgQuery.Node{
+        node: {
+          :range_subselect,
+          %PgQuery.RangeSubselect{
+            subquery: %PgQuery.Node{
+              node: {:select_stmt, %PgQuery.SelectStmt{from_clause: from_clause}}
+            }
+          }
+        }
+      } ->
+        extract_relnames(from_clause)
+
       %PgQuery.Node{node: {:join_expr, %PgQuery.JoinExpr{larg: larg, rarg: rarg}}} ->
         l_tbl = extract_relname(larg)
         r_tbl = extract_relname(rarg)
 
         [l_tbl, r_tbl]
+
+      _ ->
+        Logger.warning("I havent covered this case yet: #{inspect(node)}")
+        nil
     end
   end
 end

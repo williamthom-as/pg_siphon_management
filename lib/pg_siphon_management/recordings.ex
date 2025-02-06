@@ -147,17 +147,16 @@ defmodule PgSiphonManagement.Recordings do
     |> Enum.take(max)
     |> Enum.map(fn {:ok, row} ->
       json_string = Enum.at(row, 3) || "{}"
+
       parsed_json =
         case Jason.decode(json_string) do
           {:ok, map} -> map
           _ -> %{}
         end
 
-        row = List.replace_at(row, 3, parsed_json)
-        {:ok, row}
+      row = List.replace_at(row, 3, parsed_json)
+      {:ok, row}
     end)
-
-
   end
 
   defp expand_file_name(file_name) do
