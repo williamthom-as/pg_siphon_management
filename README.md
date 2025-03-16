@@ -22,8 +22,15 @@ PgSiphon has:
 <p align="center">
   <img src="https://github.com/user-attachments/assets/741fcb7a-d537-4781-8572-4f19e1e92147" alt="PgSiphon UI" width="600">
   <br>
-  <em>PgSiphon architecture diagram showing data flow between application, proxy and database</em>
+  <em>PgSiphon Management UI showing proxy activity between app and database.</em>
 </p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/d2d99898-b1ba-4f96-b46e-87a5a5c36e19" alt="PgSiphon UI" width="600">
+  <br>
+  <em>PgSiphon Management analysis.</em>
+</p>
+
 
 ## Usage
 
