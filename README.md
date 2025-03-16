@@ -1,5 +1,32 @@
 # PgSiphonManagement
 
+## Overview
+
+PgSiphon sits between your application and Postgres, acting as a proxy to observe, collect, and analyse streams of database activity.
+
+It can be used to:
+- monitor and visualise database activity in real-time.
+- compare performance and impact on database activity before/after refactoring.
+- verify that what you *think* should be happening, is *actually* happening [especially useful for ORMs].
+
+PgSiphon should not be used in production environments, but rather as a development tool for debugging/finding performance improvements.
+
+PgSiphon has:
+- a very small overhead on application performance,
+- requires only application configuration change,
+- observes **all** traffic, but only records on demand.
+- allows different message formats to be included/ignored for analysis.
+
+## Screenshots
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/741fcb7a-d537-4781-8572-4f19e1e92147" alt="PgSiphon UI" width="600">
+  <br>
+  <em>PgSiphon architecture diagram showing data flow between application, proxy and database</em>
+</p>
+
+## Usage
+
 To start your Phoenix server:
 
   * Run `mix setup` to install and setup dependencies
