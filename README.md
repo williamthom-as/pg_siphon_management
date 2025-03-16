@@ -25,7 +25,7 @@ PgSiphon has:
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/d2d99898-b1ba-4f96-b46e-87a5a5c36e19" alt="PgSiphon UI" width="100%">
+  <img src="https://github.com/user-attachments/assets/76562670-7f6a-4927-86f4-06ad788366d3" alt="PgSiphon UI" width="100%">
   <em style="font-size: 0.9rem;">Query analysis.</em>
 </p>
 
