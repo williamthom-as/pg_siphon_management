@@ -19,13 +19,15 @@ PgSiphon has:
 
 ## Screenshots
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/741fcb7a-d537-4781-8572-4f19e1e92147" alt="PgSiphon UI" width="100%">
+<p align="center" style="margin-bottom: 2rem">
+  <img src="docs/img/proxy.gif" alt="PgSiphon UI" width="600px">
+  <br/>
   <em style="font-size: 0.9rem;">Proxy activity between app and database.</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/76562670-7f6a-4927-86f4-06ad788366d3" alt="PgSiphon UI" width="100%">
+  <img src="docs/img/analysis.gif" alt="PgSiphon UI" width="600px">
+  <br/>
   <em style="font-size: 0.9rem;">Query analysis.</em>
 </p>
 
