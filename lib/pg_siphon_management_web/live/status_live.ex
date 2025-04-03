@@ -14,9 +14,10 @@ defmodule PgSiphonManagementWeb.StatusLive do
       PubSub.subscribe(:recording_notifier, "recording")
     end
 
-    %{recording: recording} = :sys.get_state(:query_server)
     %{recording: file_recording} = :sys.get_state(:recording_server)
-    %{filter_message_types: filter_message_types} = :sys.get_state(:monitoring_server)
+
+    %{filter_message_types: filter_message_types, recording: active_logging} =
+      :sys.get_state(:monitoring_server)
 
     proxy_config = :sys.get_state(:proxy_server)
     active_connections = ActiveConnectionsServer.get_active_connections()
@@ -25,12 +26,18 @@ defmodule PgSiphonManagementWeb.StatusLive do
       socket
       |> stream(:messages, [])
       |> assign(counter: 0)
-      |> assign(recording: recording)
       |> assign(file_recording: file_recording)
+      |> assign(active_logging: active_logging)
       |> assign(proxy_config: proxy_config)
       |> assign(filter_message_types: filter_message_types)
       |> assign(active_connections: active_connections)
-      |> assign(accordion_open: %{"monitoring_settings" => true, "active_connections" => false})
+      |> assign(
+        accordion_open: %{
+          "monitoring_settings" => true,
+          "active_connections" => false,
+          "message_flow" => false
+        }
+      )
       |> assign(page_title: "Proxy")
 
     {:ok, socket}
@@ -45,6 +52,18 @@ defmodule PgSiphonManagementWeb.StatusLive do
             <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
             <span class="font-mono text-xs">
               Recording in progress...
+            </span>
+          </div>
+        </.alert_bar>
+      </div>
+    <% end %>
+    <%= if @active_logging == false do %>
+      <div class="p-3">
+        <.alert_bar type="info">
+          <div class="flex flex-row justify-start items-center space-x-4">
+            <Heroicons.icon name="pause" type="outline" class="h-6 w-6" />
+            <span class="font-mono text-xs">
+              Active logging is paused, messages will not be shown or recorded.
             </span>
           </div>
         </.alert_bar>
@@ -124,6 +143,47 @@ defmodule PgSiphonManagementWeb.StatusLive do
                 <button class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs">
                   All
                 </button>
+              </div>
+            </.kvp_container>
+          </.accordion_entry>
+          <.accordion_entry title="Message Flow" open={@accordion_open["message_flow"]}>
+            <.kvp_container title="Status">
+              <.kvp_entry>
+                <:key>Active Logging:</:key>
+                <:value>
+                  <%= if @active_logging do %>
+                    <.badge colour="green">
+                      <span class="font-mono text-xs">Active</span>
+                    </.badge>
+                  <% else %>
+                    <.badge colour="red">
+                      <span class="font-mono text-xs">Paused</span>
+                    </.badge>
+                  <% end %>
+                </:value>
+              </.kvp_entry>
+              <div class="flex space-x-2 mt-4">
+                <%= if @active_logging do %>
+                  <div class="text-gray-500 text-xs my-2">
+                    This option will pause the message flow, but not the proxy. This is useful if you are inundated with messages.
+                  </div>
+                  <button
+                    phx-click="stop_active_logging"
+                    class="border border-indigo-500 text-indigo-500 hover:bg-indigo-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs"
+                  >
+                    Pause Message Flow
+                  </button>
+                <% else %>
+                  <div class="text-gray-500 text-xs my-2">
+                    This option will restart the message flow, you will see it start to log (and record) live.
+                  </div>
+                  <button
+                    phx-click="start_active_logging"
+                    class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs"
+                  >
+                    Start Message Flow
+                  </button>
+                <% end %>
               </div>
             </.kvp_container>
           </.accordion_entry>
@@ -211,6 +271,32 @@ defmodule PgSiphonManagementWeb.StatusLive do
       </:right_section>
     </.two_columns>
     """
+  end
+
+  def handle_event("start_active_logging", _params, socket) do
+    PgSiphon.MonitoringServer.set_recording(true)
+
+    {:noreply,
+     assign(socket,
+       active_logging: true,
+       accordion_open: %{
+         socket.assigns.accordion_open
+         | "message_flow" => true
+       }
+     )}
+  end
+
+  def handle_event("stop_active_logging", _params, socket) do
+    PgSiphon.MonitoringServer.set_recording(false)
+
+    {:noreply,
+     assign(socket,
+       active_logging: false,
+       accordion_open: %{
+         socket.assigns.accordion_open
+         | "message_flow" => true
+       }
+     )}
   end
 
   def handle_event("toggle_filter_message_type", %{"key" => key, "value" => "on"}, socket) do
