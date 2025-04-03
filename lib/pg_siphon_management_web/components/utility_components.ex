@@ -96,6 +96,9 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
   defp alert_class("primary"),
     do: "bg-gradient-to-br from-violet-500 to-violet-700 text-white p-4 rounded-md shadow-md"
 
+  defp alert_class("info"),
+    do: "bg-gradient-to-br from-blue-500 to-violet-700 text-white p-4 rounded-md shadow-md"
+
   defp alert_class(_),
     do: "bg-gradient-to-br from-gray-500 to-gray-700 text-white p-4 rounded-md shadow-md"
 
