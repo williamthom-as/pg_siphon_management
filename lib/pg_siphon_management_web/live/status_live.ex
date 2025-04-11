@@ -120,12 +120,12 @@ defmodule PgSiphonManagementWeb.StatusLive do
                   <:key><%= value %></:key>
                   <:value>
                     <label class="flex items-center space-x-3 cursor-pointer">
-                      <span class="text-gray-300">[<%= key %>]</span>
+                      <span class="text-gray-500">[<%= key %>]</span>
 
                       <% is_on = Enum.member?(@filter_message_types, key) %>
                       <input
                         type="checkbox"
-                        class="form-checkbox h-5 w-5 text-blue-500 bg-gray-800 border-gray-600 focus:ring-blue-500 cursor-pointer"
+                        class="form-checkbox h-5 w-5 text-blue-500 bg-white border-gray-300 dark:bg-gray-800 dark:border-gray-600 focus:ring-blue-500 cursor-pointer"
                         checked={is_on}
                         phx-click="toggle_filter_message_type"
                         phx-value-key={key}
@@ -199,10 +199,10 @@ defmodule PgSiphonManagementWeb.StatusLive do
       </:left_section>
       <:right_section>
         <%!-- Move this to live component later  --%>
-        <div class="mx-auto border-gray-700">
-          <div class="bg-gray-800 rounded-t-sm px-4 py-2 flex items-center justify-between">
-            <div class="text-gray-400 text-xs font-mono"></div>
-            <span class="text-gray-400 text-xs font-mono">
+        <div class="mx-auto border border-gray-300 dark:border-gray-700">
+          <div class="bg-gray-200/50 dark:bg-gray-800 rounded-t-sm px-4 py-2 flex items-center justify-between">
+            <div class="text-gray-600 dark:text-gray-400 text-xs font-mono"></div>
+            <span class="text-gray-600 dark:text-gray-400 text-xs font-mono">
               Logging:
               <%= if Enum.empty?(@filter_message_types) do %>
                 All
@@ -215,15 +215,15 @@ defmodule PgSiphonManagementWeb.StatusLive do
           <div
             id="messages-window"
             phx-update="stream"
-            class="bg-black text-white p-4 rounded-b-sm min-h-96 overflow-y-auto font-mono text-xs flex-grow max-h-[calc(100vh-100px)]"
+            class="bg-gray-50 dark:bg-black text-gray-800 dark:text-white p-4 rounded-b-sm min-h-96 overflow-y-auto font-mono text-xs flex-grow max-h-[calc(100vh-100px)]"
             phx-hook="ScrollToBottom"
           >
             <div :for={{id, message} <- @streams.messages} id={id} class="mb-2">
               <p>
-                <span class="text-blue-400">
+                <span class="text-blue-600 dark:text-blue-400">
                   [<%= message.message.time %>]
                 </span>
-                <span class="text-green-400">
+                <span class="text-green-600 dark:text-green-400">
                   [<%= message.message.type %>]
                 </span>
                 <span class="break-all">
@@ -231,33 +231,33 @@ defmodule PgSiphonManagementWeb.StatusLive do
                     <% "P" -> %>
                       <% prep_statement = message.message.extras[:prepared_statement] %>
                       <%= if !Enum.empty?(prep_statement) do %>
-                        <span class="text-red-400">
+                        <span class="text-red-600 dark:text-red-400">
                           [<%= prep_statement %>]
                         </span>
                       <% end %>
 
-                      <span class="text-slate-200">
+                      <span class="text-gray-800 dark:text-slate-200">
                         <%= message.message.payload %>
                       </span>
                     <% "B" -> %>
                       <% extras = message.message.extras %>
                       <%= if extras[:statement_name] != "" do %>
-                        <span class="text-red-400">
+                        <span class="text-red-600 dark:text-red-400">
                           [Stmt: <%= extras[:statement_name] %>]
                         </span>
                       <% end %>
-                      <span class="text-fuchsia-400">
+                      <span class="text-fuchsia-600 dark:text-fuchsia-400">
                         Params (<%= extras[:param_count] %>):
                       </span>
                       <%= if Map.has_key?(extras, :param_vals) do %>
                         <%= for value <- extras[:param_vals] do %>
-                          <span class="text-yellow-400">
+                          <span class="text-yellow-600 dark:text-yellow-400">
                             [<%= List.last(value) %>]
                           </span>
                         <% end %>
                       <% end %>
                     <% _ -> %>
-                      <span class="text-slate-100">
+                      <span class="text-gray-800 dark:text-slate-100">
                         <%= message.message.payload %>
                       </span>
                   <% end %>

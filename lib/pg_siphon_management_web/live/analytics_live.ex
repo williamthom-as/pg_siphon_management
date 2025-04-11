@@ -167,7 +167,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
                           <input
                             type="checkbox"
-                            class="form-checkbox h-5 w-5 text-blue-500 bg-gray-800 border-gray-600 focus:ring-blue-500 cursor-pointer"
+                            class="form-checkbox h-5 w-5 text-blue-500 bg-white border-gray-300 dark:bg-gray-800 dark:border-gray-600 focus:ring-blue-500 cursor-pointer"
                             checked={is_on}
                             phx-click="toggle_filter_message_type"
                             phx-value-key={type}

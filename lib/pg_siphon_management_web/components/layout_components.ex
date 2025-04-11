@@ -97,10 +97,10 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
   def two_columns(assigns) do
     ~H"""
     <div class="flex flex-col md:flex-row h-full">
-      <div class="w-full md:w-1/3 md:max-w-lg bg-gray-900 text-gray-200 p-3">
+      <div class="w-full md:w-1/3 md:max-w-lg bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 p-3">
         <%= render_slot(@left_section) %>
       </div>
-      <div class="w-full md:w-2/3 bg-gray-800/30 p-3 flex-grow">
+      <div class="w-full md:w-2/3 bg-gray-50/80 dark:bg-gray-800/30 p-3 flex-grow">
         <%= render_slot(@right_section) %>
       </div>
     </div>
@@ -144,8 +144,8 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def accordion_entry(assigns) do
     ~H"""
-    <div class="border border-gray-700 mb-2">
-      <button class="accordion-header w-full text-left p-2 bg-gray-800 text-gray-200 hover:bg-gray-700 font-mono text-xs flex justify-between items-center">
+    <div class="border border-gray-300 dark:border-gray-700 mb-2">
+      <button class="accordion-header w-full text-left p-2 bg-gray-200/50 text-gray-800 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 font-mono text-xs flex justify-between items-center">
         <div class="flex items-center">
           <Heroicons.icon name="ellipsis-vertical" type="mini" class="h-3 w-3" />
           <span class="ml-2">
@@ -163,7 +163,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
           </path>
         </svg>
       </button>
-      <div class={"accordion-content bg-gray-900 text-gray-300 font-mono text-sm #{if @open, do: "open", else: ""}"}>
+      <div class={"accordion-content bg-white text-gray-700 dark:bg-gray-900 dark:text-gray-300 font-mono text-sm #{if @open, do: "open", else: ""}"}>
         <div class="p-2">
           <%= render_slot(@inner_block) %>
         </div>
@@ -195,8 +195,8 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def kvp_container(assigns) do
     ~H"""
-    <div class="bg-gray-900 p-2 shadow-md mb-2">
-      <h3 class="text-gray-300 text-sm mb-2" title={@tooltip}><%= @title %></h3>
+    <div class="p-2 mb-2">
+      <h3 class="text-gray-700 dark:text-gray-300 text-sm mb-2" title={@tooltip}><%= @title %></h3>
       <%= render_slot(@inner_block) %>
     </div>
     """
@@ -219,8 +219,8 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
   def kvp_entry(assigns) do
     ~H"""
     <div class="flex justify-between items-center mb-2">
-      <span class="text-gray-400 text-xs"><%= render_slot(@key) %></span>
-      <span class="text-gray-300"><%= render_slot(@value) %></span>
+      <span class="text-gray-500 text-xs"><%= render_slot(@key) %></span>
+      <span class="text-gray-600"><%= render_slot(@value) %></span>
     </div>
     """
   end
