@@ -1,8 +1,6 @@
 defmodule PgSiphonManagementWeb.StatusLive do
   use PgSiphonManagementWeb, :live_view
 
-  @max_display_records 5000
-
   alias PgSiphonManagementWeb.ActiveConnectionsComponent
   alias PgSiphonManagementWeb.ExporterComponent
   alias PgSiphon.ActiveConnectionsServer

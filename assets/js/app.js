@@ -91,3 +91,56 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
+// Toggle dark/lite mode handler
+document.addEventListener('DOMContentLoaded', () => {
+  const themeToggle = document.getElementById('theme-toggle');
+  const htmlElement = document.documentElement;
+  const dot = document.querySelector('.dot');
+
+  const updateTheme = () => {
+    console.log("update theme")
+
+    if (htmlElement.classList.contains('dark')) {
+      console.log("here with it on")
+      console.log(dot.classList)
+      themeToggle.checked = true;
+      dot.classList.add('translate-x-6');
+
+      console.log(dot.classList)
+    } else {
+      console.log("here with it off")
+      themeToggle.checked = false;
+      dot.classList.remove('translate-x-6');
+    }
+  };
+
+  themeToggle.addEventListener('change', () => {
+    console.log("toggle")
+    if (themeToggle.checked) {
+      htmlElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      htmlElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+    updateTheme();
+  });
+
+  console.log(window.matchMedia('(prefers-color-scheme: dark)').matches)
+  console.log(localStorage.getItem('theme'))
+
+
+  // on page load, set the theme based on browser pref or localStorage pref  
+  if (localStorage.getItem('theme') === 'dark' || 
+      (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    htmlElement.classList.add('dark');
+  } else {
+    htmlElement.classList.remove('dark');
+  }
+
+  console.log("here before!")
+  updateTheme();
+  console.log(dot.classList)
+
+});
