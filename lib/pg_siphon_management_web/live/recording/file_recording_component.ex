@@ -48,61 +48,61 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
       </div>
       <div class="overflow-auto">
         <div class="flex flex-col">
-          <div class="flex flex-row bg-gray-900 p-2 mb-1 text-xs font-semibold font-mono rounded-sm text-center items-center text-gray-300">
+          <div class="flex flex-row bg-gray-100 dark:bg-gray-900 p-2 mb-1 text-xs font-semibold font-mono rounded-sm text-center items-center text-gray-700 dark:text-gray-300">
             <div class="w-12 font-bold">Type</div>
             <div class="flex-1 font-bold ml-4">Message</div>
             <div class="w-24 font-bold">Timestamp</div>
           </div>
           <%= for {{_, [type, message, timestamp, extras]}, _idx} <- Enum.with_index(@analysis.replay_log) do %>
             <% msg_colour = PgMsgColourMapper.call(type) %>
-            <div class={"flex flex-row p-2 py-1 text-gray-300 items-center bg-#{msg_colour}-500 bg-opacity-10 rounded-sm mt-1"}>
-              <div class={"w-12 text-#{msg_colour}-400 text-xs text-center"}>
+            <div class={"flex flex-row p-2 py-1 text-gray-700 dark:text-gray-300 items-center bg-#{msg_colour}-500 bg-opacity-5 dark:bg-opacity-10 rounded-sm mt-1"}>
+              <div class={"w-12 text-#{msg_colour}-600 dark:text-#{msg_colour}-400 text-xs text-center"}>
                 [<%= type %>]
               </div>
-              <div class="flex-1 overflow-auto font-mono text-gray-100 text-xs leading-relaxed scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div class="flex-1 overflow-auto font-mono text-gray-800 dark:text-gray-100 text-xs leading-relaxed scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 <span class="break-all">
                   <%= case type do %>
                     <% "P" -> %>
                       <% prep_statement = extras["prepared_statement"] %>
                       <%= if !Enum.empty?(prep_statement) do %>
-                        <div class="text-emerald-600 mb-2">
+                        <div class="text-emerald-700 dark:text-emerald-600 mb-2">
                           [Prepared Statement: <%= prep_statement %>]
                         </div>
                       <% end %>
 
-                      <span class="text-slate-200">
+                      <span class="text-slate-800 dark:text-slate-200">
                         <.sql_fmt message={message} />
                       </span>
                     <% "B" -> %>
                       <%= if extras["statement_name"] != "" do %>
-                        <span class="text-red-400">
+                        <span class="text-red-600 dark:text-red-400">
                           [Stmt: <%= extras["statement_name"] %>]
                         </span>
                       <% end %>
-                      <span class="text-yellow-600">
+                      <span class="text-yellow-700 dark:text-yellow-600">
                         Params (<%= extras["param_count"] %>):
                       </span>
                       <%= if Map.has_key?(extras, "param_vals") do %>
                         <%= for value <- extras["param_vals"] do %>
-                          <span class="text-yellow-400">
+                          <span class="text-yellow-600 dark:text-yellow-400">
                             [<%= List.last(value) %>]
                           </span>
                         <% end %>
                       <% end %>
                     <% _ -> %>
-                      <span class="text-slate-100">
+                      <span class="text-slate-800 dark:text-slate-100">
                         <.sql_fmt message={message} />
                       </span>
                   <% end %>
                 </span>
               </div>
-              <div class="w-24 text-gray-300 text-xs text-center">
+              <div class="w-24 text-gray-700 dark:text-gray-300 text-xs text-center">
                 <.format_ts
                   timestamp={String.to_integer(timestamp)}
                   date_time_format="{h24}:{m}:{s}{ss}"
                   show_time_ago={false}
                 />
-                <span class="text-xs text-gray-500"><%= timestamp %></span>
+                <span class="text-xs text-gray-500 dark:text-gray-500"><%= timestamp %></span>
               </div>
             </div>
           <% end %>

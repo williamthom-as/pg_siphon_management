@@ -261,13 +261,13 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def empty_state(assigns) do
     ~H"""
-    <div class="flex flex-col items-center justify-center text-gray-400 mt-4 p-16 bg-transparent rounded font-mono">
+    <div class="flex flex-col items-center justify-center text-gray-600 dark:text-gray-400 mt-4 p-16 bg-transparent rounded font-mono">
       <div class="flex flex-col items-center justify-center">
         <Heroicons.icon name={@icon_name} type="outline" class="h-20 w-20 mb-4 text-gray-500" />
-        <p class={"mb-2 font-semibold text-gray-300 #{@text_size}"}>
+        <p class={"mb-2 font-semibold text-gray-700 dark:text-gray-300 #{@text_size}"}>
           <%= @alert_message %>
         </p>
-        <p class="mb-4 text-xs text-gray-300">
+        <p class="mb-4 text-xs text-gray-700 dark:text-gray-300">
           <%= render_slot(@message) %>
         </p>
         <%= render_slot(@action) %>

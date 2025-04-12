@@ -38,7 +38,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
           </.button>
         </div>
       <% else %>
-        <h3 class="text-gray-300 text-sm mb-2">Export to file</h3>
+        <h3 class="text-gray-700 dark:text-gray-300 text-sm mb-2">Export to file</h3>
         <div class="text-gray-600 text-xs mb-4">
           <span class="font-semibold">Note:</span>
           File will be exported to dir: <span class="underline text-gray-600"><%= @root_dir %></span>

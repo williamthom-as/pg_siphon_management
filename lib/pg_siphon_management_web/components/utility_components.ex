@@ -134,8 +134,8 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
       |> assign(:time_ago, time_ago)
 
     ~H"""
-    <span class={[@class, "block text-gray-700"]}>
-      <span class="text-gray-300"><%= @formatted_timestamp %></span>
+    <span class={[@class, "block text-gray-300 dark:text-gray-700"]}>
+      <span class="text-gray-700 dark:text-gray-300"><%= @formatted_timestamp %></span>
       <%= if @show_time_ago do %>
         <br />
         <small class="text-sm text-gray-500"><%= @time_ago %> ago</small>

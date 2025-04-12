@@ -395,7 +395,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-xs font-semibold leading-6 text-gray-300">
+    <label for={@for} class="block text-xs font-semibold leading-6 text-gray-700 dark:text-gray-300">
       <%= render_slot(@inner_block) %>
     </label>
     """

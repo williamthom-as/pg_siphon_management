@@ -163,7 +163,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                       <:value>
                         <% is_on = Enum.member?(@recording_list_options.filter_types, type) %>
                         <label class="flex items-center space-x-3 cursor-pointer">
-                          <span class="text-gray-300"><%= count %></span>
+                          <span class="text-gray-700 dark:text-gray-300"><%= count %></span>
 
                           <input
                             type="checkbox"
