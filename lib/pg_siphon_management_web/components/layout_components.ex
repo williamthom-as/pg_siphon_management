@@ -20,7 +20,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def sidebar(assigns) do
     ~H"""
-    <div class="w-10 bg-gray-900 text-white flex flex-col items-center border-r border-gray-800">
+    <div class="w-10 bg-white dark:bg-gray-900 text-gray-800 dark:text-white flex flex-col items-center border-r border-gray-300 dark:border-gray-800">
       <div class="p-2 pt-3 text-center text-sm font-mono font-semibold [writing-mode:vertical-lr] bg-gradient-to-b from-blue-500 to-purple-500 text-transparent bg-clip-text">
         PgSiphon
       </div>
@@ -57,7 +57,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def topbar(assigns) do
     ~H"""
-    <div class="w-full h-10 bg-gray-900 text-gray-800 flex border-b border-gray-800">
+    <div class="w-full h-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 flex border-b border-gray-300 dark:border-gray-800">
       <div class="flex-1 flex items-center justify-start">
         <div class="pl-4 p-2 text-center text-xs font-mono">
           <%= render_slot(@left_slot) %>

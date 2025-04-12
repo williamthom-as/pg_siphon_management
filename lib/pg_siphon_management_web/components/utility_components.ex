@@ -23,17 +23,17 @@ defmodule PgSiphonManagementWeb.UtilityComponents do
       <a
         href={@href}
         class={
-          "block p-1.5 rounded hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white #{if @current_path == @route, do: "bg-gray-800", else: ""}"
+          "block p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white #{if @current_path == @route, do: "bg-gray-100 dark:bg-gray-800", else: ""}"
         }
       >
         <Heroicons.icon
           name={@icon}
           type="outline"
-          class={"h-4 w-4 #{if @current_path == @route, do: "text-purple-500", else: ""}"}
+          class={"h-4 w-4 #{if @current_path == @route, do: "text-blue-600 dark:text-purple-500", else: ""}"}
         />
         <%= render_slot(@inner_block) %>
       </a>
-      <div class="absolute bg-opacity-75 left-full top-1/2 transform -translate-y-1/2 ml-2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+      <div class="absolute bg-opacity-75 left-full top-1/2 transform -translate-y-1/2 ml-2 hidden group-hover:block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white text-xs rounded py-1 px-2 whitespace-nowrap">
         <%= @tooltip %>
       </div>
     </div>
