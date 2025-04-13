@@ -163,7 +163,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
           </path>
         </svg>
       </button>
-      <div class={"accordion-content bg-white text-gray-700 dark:bg-gray-900 dark:text-gray-300 font-mono text-sm #{if @open, do: "open", else: ""}"}>
+      <div class={"accordion-content text-gray-700 dark:text-gray-300 font-mono text-sm #{if @open, do: "open", else: ""}"}>
         <div class="p-2">
           <%= render_slot(@inner_block) %>
         </div>
