@@ -231,15 +231,15 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def internal_header(assigns) do
     ~H"""
-    <section class="flex bg-gray-900 border border-gray-700 rounded-sm">
+    <section class="flex bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-sm">
       <div class="w-full mx-auto">
-        <div class="relative overflow-hidden bg-gray-800 rounded-sm">
+        <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-sm">
           <div class="flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
             <div>
-              <h4 class="mr-3 font-semibold text-gray-200">
+              <h4 class="mr-3 font-semibold text-gray-800 dark:text-gray-200">
                 <%= render_slot(@title) %>
               </h4>
-              <p class="text-gray-400 text-xs">
+              <p class="text-gray-600 dark:text-gray-400 text-xs">
                 <%= render_slot(@sub_title) %>
               </p>
             </div>
@@ -297,13 +297,16 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def dashboard_card(assigns) do
     ~H"""
-    <div class={["bg-gray-800 shadow-md rounded-sm border border-gray-700", @class]}>
-      <div class="bg-gray-700 px-4 py-2 rounded-t-sm">
-        <h2 class="text-xs text-gray-400 font-mono">
+    <div class={[
+      "bg-white dark:bg-gray-800 shadow-md rounded-sm border border-gray-300 dark:border-gray-700",
+      @class
+    ]}>
+      <div class="bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-t-sm">
+        <h2 class="text-xs text-gray-700 dark:text-gray-400 font-mono">
           <%= @title %>
         </h2>
       </div>
-      <div class="bg-gray-800 p-4 rounded-b-lg">
+      <div class="bg-white dark:bg-gray-800 p-4 rounded-b-lg">
         <%= render_slot(@inner_block) %>
       </div>
     </div>
@@ -316,7 +319,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def pagination_text(assigns) do
     ~H"""
-    <div class="italic font-mono text-xs text-gray-300">
+    <div class="italic font-mono text-xs text-gray-700 dark:text-gray-300">
       Showing <%= @start_page %> to <%= @end_page %> of <%= @total_count %> results
     </div>
     """

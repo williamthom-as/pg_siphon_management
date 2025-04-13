@@ -83,8 +83,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
     <.alerts recording={@recording} in_progress={@in_progress}></.alerts>
     <.two_columns>
       <:left_section>
-        <div class="w-full rounded-sm shadow font-mono">
-          <h5 class="mb-4 text-base font-mono text-md text-gray-200">
+        <div class="w-full font-mono">
+          <h5 class="mb-4 text-base font-mono text-md dark:text-gray-200 text-gray-900">
             Recorded Logs
           </h5>
           <.search_form options={@card_list_options}></.search_form>
@@ -111,7 +111,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
               ) %>
             </:sub_title>
             <:left_section>
-              <div class="font-mono text-xs text-gray-500 italic">
+              <div class="font-mono text-xs text-gray-400 dark:text-gray-500 italic">
                 <%= unless @selected_file.has_analysis do %>
                   No analysis has been performed yet.
                 <% end %>
@@ -125,29 +125,29 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
             <%= if @analysis do %>
               <.dashboard_container>
                 <.dashboard_card title="Start">
-                  <div class="text-md text-gray-200">
+                  <div class="text-md text-gray-900 dark:text-gray-200">
                     <.format_ts timestamp={@analysis.content["start_time"]} />
                   </div>
                 </.dashboard_card>
                 <.dashboard_card title="Finish">
-                  <div class="text-md text-gray-200">
+                  <div class="text-md text-gray-900 dark:text-gray-200">
                     <.format_ts timestamp={@analysis.content["end_time"]} />
                   </div>
                 </.dashboard_card>
                 <.dashboard_card title="Duration (sec)">
-                  <div class="text-md text-gray-200">
+                  <div class="text-md text-gray-900 dark:text-gray-200">
                     <%= @analysis.content["duration"] %>
                   </div>
                 </.dashboard_card>
                 <.dashboard_card title="Total Count of Messages">
-                  <div class="text-md text-gray-200">
+                  <div class="text-md text-gray-900 dark:text-gray-200">
                     <%= @analysis.content["total_count"] %>
                   </div>
                 </.dashboard_card>
               </.dashboard_container>
               <.dashboard_container base_colspan={3}>
                 <.dashboard_card title="Message Types" class="col-span-1">
-                  <div class="font-mono text-gray-500 text-xs flex items-center mb-4">
+                  <div class="font-mono text-gray-400 dark:text-gray-500 text-xs flex items-center mb-4">
                     <Heroicons.icon name="information-circle" type="mini" class="h-4 w-4 mr-2" />
                     Note: You can filter the replay log by toggling the message types.
                   </div>
@@ -181,7 +181,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                   <%= for {type, count} <- @analysis.content["operations"] do %>
                     <.kvp_entry>
                       <:key>
-                        <span class="text-gray-200 text-xs font-mono">
+                        <span class="text-gray-900 dark:text-gray-200 text-xs font-mono">
                           <%= type %>
                         </span>
                       </:key>
@@ -195,7 +195,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
                   <%= for {type, count} <- @analysis.content["tables"] do %>
                     <.kvp_entry>
                       <:key>
-                        <span class="text-gray-200 text-xs font-mono">
+                        <span class="text-gray-900 dark:text-gray-200 text-xs font-mono">
                           <%= type %>
                         </span>
                       </:key>
@@ -341,20 +341,20 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
       case {recording, selected_file} do
         {rec, selec} when is_nil(rec) or is_nil(selec) ->
           {
-            "bg-gray-800 hover:bg-gray-700 border-gray-700",
-            "hover:bg-gray-700 text-gray-400"
+            "bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-700",
+            "hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
           }
 
         {rec, selec} when rec.file_name == selec.file_name ->
           {
-            "text-white bg-blue-500 hover:bg-blue-500 border-blue-500",
-            "hover:bg-blue-500 text-blue-300"
+            "text-white bg-blue-500 hover:bg-blue-600 dark:hover:bg-blue-500 border-blue-500",
+            "hover:bg-blue-600 dark:hover:bg-blue-500 text-blue-100 dark:text-blue-300"
           }
 
         _ ->
           {
-            "bg-gray-800 hover:bg-gray-700 border-gray-700",
-            "hover:bg-gray-700 text-gray-400"
+            "bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-700",
+            "hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
           }
       end
 
@@ -390,7 +390,7 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
           </div>
         <% else %>
           <div
-            class={"rounded flex items-center justify-center #{@text_classes} hover:text-white cursor-pointer pr-3"}
+            class={"rounded flex items-center justify-center #{@text_classes} hover:text-gray-900 hover:dark:text-white cursor-pointer pr-3"}
             phx-click="delete_recording"
             phx-value-file_name={@recording.file_name}
           >

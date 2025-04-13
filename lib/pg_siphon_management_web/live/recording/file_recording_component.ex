@@ -55,8 +55,8 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
           </div>
           <%= for {{_, [type, message, timestamp, extras]}, _idx} <- Enum.with_index(@analysis.replay_log) do %>
             <% msg_colour = PgMsgColourMapper.call(type) %>
-            <div class={"flex flex-row p-2 py-1 text-gray-700 dark:text-gray-300 items-center bg-#{msg_colour}-500 bg-opacity-5 dark:bg-opacity-10 rounded-sm mt-1"}>
-              <div class={"w-12 text-#{msg_colour}-600 dark:text-#{msg_colour}-400 text-xs text-center"}>
+            <div class={"flex flex-row p-2 py-1 text-gray-700 dark:text-gray-300 items-center bg-#{msg_colour}-500 dark:bg-#{msg_colour}-500 bg-opacity-15 dark:bg-opacity-10 rounded-sm mt-1"}>
+              <div class={"w-12 text-#{msg_colour}-700 dark:text-#{msg_colour}-400 text-xs text-center"}>
                 [<%= type %>]
               </div>
               <div class="flex-1 overflow-auto font-mono text-gray-800 dark:text-gray-100 text-xs leading-relaxed scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -65,7 +65,7 @@ defmodule PgSiphonManagementWeb.Recording.FileRecordingComponent do
                     <% "P" -> %>
                       <% prep_statement = extras["prepared_statement"] %>
                       <%= if !Enum.empty?(prep_statement) do %>
-                        <div class="text-emerald-700 dark:text-emerald-600 mb-2">
+                        <div class="text-emerald-800 dark:text-emerald-600 mb-2">
                           [Prepared Statement: <%= prep_statement %>]
                         </div>
                       <% end %>
