@@ -342,7 +342,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
         multiple={@multiple}
         {@rest}
       >
-        <option :if={@prompt} value="" class="bg-white dark:bg-gray-800"><%= @prompt %></option>
+        <option :if={@prompt} value="" class=""><%= @prompt %></option>
         <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
       </select>
       <.error :for={msg <- @errors}><%= msg %></.error>
