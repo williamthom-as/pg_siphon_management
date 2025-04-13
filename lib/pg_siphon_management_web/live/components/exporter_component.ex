@@ -39,9 +39,10 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
         </div>
       <% else %>
         <h3 class="text-gray-700 dark:text-gray-300 text-sm mb-2">Export to file</h3>
-        <div class="text-gray-600 text-xs mb-4">
+        <div class="text-gray-600 dark:text-gray-400 text-xs mb-4">
           <span class="font-semibold">Note:</span>
-          File will be exported to dir: <span class="underline text-gray-600"><%= @root_dir %></span>
+          File will be exported to dir:
+          <span class="underline text-gray-600 dark:text-gray-400"><%= @root_dir %></span>
         </div>
         <.form for={@form} id="recording-form" phx-submit="submit" phx-target={@myself}>
           <.input
@@ -59,7 +60,7 @@ defmodule PgSiphonManagementWeb.ExporterComponent do
           />
           <.button
             phx-disable-with="Submitting ..."
-            class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs mt-2"
+            class="border border-blue-500 dark:border-blue-400 text-blue-500 dark:text-blue-400 hover:bg-blue-500 dark:hover:bg-blue-400 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs mt-2"
           >
             Start
           </.button>

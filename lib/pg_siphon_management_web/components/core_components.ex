@@ -231,9 +231,11 @@ defmodule PgSiphonManagementWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 py-1 px-2",
-        "hover:text-blue-200",
-        "text-xs font-semibold leading-6 text-blue-500 active:text-white/80",
+        "phx-submit-loading:opacity-75 rounded-lg py-1 px-2",
+        "bg-white dark:bg-zinc-900 border border-blue-500 dark:border-blue-400",
+        "text-blue-600 dark:text-blue-400 hover:bg-blue-500 dark:hover:bg-blue-600",
+        "hover:text-white dark:hover:text-white",
+        "text-xs font-semibold leading-6 active:text-white/80",
         @class
       ]}
       {@rest}
@@ -311,7 +313,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
 
     ~H"""
     <div>
-      <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
+      <label class="flex items-center gap-4 text-sm leading-6 text-gray-700 dark:text-gray-400">
         <input type="hidden" name={@name} value="false" disabled={@rest[:disabled]} />
         <input
           type="checkbox"
@@ -319,7 +321,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
           name={@name}
           value="true"
           checked={@checked}
-          class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
+          class="rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-400 focus:ring-0"
           {@rest}
         />
         <%= @label %>
@@ -336,11 +338,11 @@ defmodule PgSiphonManagementWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-2"
+        class="bg-transparent border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-2"
         multiple={@multiple}
         {@rest}
       >
-        <option :if={@prompt} value=""><%= @prompt %></option>
+        <option :if={@prompt} value="" class="bg-white dark:bg-gray-800"><%= @prompt %></option>
         <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
       </select>
       <.error :for={msg <- @errors}><%= msg %></.error>
@@ -356,7 +358,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
         id={@id}
         name={@name}
         class={[
-          "bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none sm:leading-6 min-h-[6rem] focus:ring-2 focus:ring-blue-500 w-full mb-2",
+          "bg-transparent border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none sm:leading-6 min-h-[6rem] focus:ring-2 focus:ring-blue-500 w-full mb-2",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
@@ -377,7 +379,7 @@ defmodule PgSiphonManagementWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-2",
+          "bg-transparent border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mb-2",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
