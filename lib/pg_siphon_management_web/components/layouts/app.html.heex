@@ -1,4 +1,4 @@
-<div class="flex h-screen">
+<div class="flex h-screen dark:bg-gray-900 bg-white dark:text-white text-gray-900">
   <.sidebar>
     <:nav_links>
       <.nav_link
@@ -33,24 +33,34 @@
     <.topbar>
       <:left_slot>
         <div class="overflow-hidden whitespace-nowrap overflow-ellipsis">
-          <span class="text-gray-600 text-xs font-mono">
+          <span class="text-gray-400 dark:text-gray-500 text-xs font-mono">
             / home
           </span>
-          <span class="text-gray-600 text-xs font-mono"> / </span>
-          <span class="text-gray-300 text-xs font-mono">
+          <span class="text-gray-600 dark:text-gray-500 text-xs font-mono"> / </span>
+          <span class="text-gray-800 dark:text-gray-300 text-xs font-mono">
             <%= @live_action %>
           </span>
         </div>
       </:left_slot>
       <:center_slot></:center_slot>
       <:right_slot>
-        <div class="flex justify-end space-x-3">
-          <div class="flex items-center">
-            <div class="w-2.5 h-2.5 bg-green-500 rounded-full mr-2 lighthouse"></div>
-            <span class="font-mono text-gray-300">Proxy</span>
+        <div class="flex justify-end items-center space-x-3">
+          <%!-- Toggle for darkmode --%>
+          <div class="flex justify-center items-center">
+            <label for="theme-toggle" class="inline-flex items-center cursor-pointer">
+              <span class="mr-3 text-sm font-medium text-gray-700 dark:text-gray-300"></span>
+              <div class="relative">
+                <input type="checkbox" id="theme-toggle" class="sr-only" />
+                <div class="block bg-gray-300 dark:bg-gray-600 w-12 h-6 rounded-full"></div>
+                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition">
+                </div>
+              </div>
+              <span class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300"></span>
+            </label>
           </div>
+          <%!-- End toggle for darkmode --%>
           <div class="border-l border-gray-700">
-            <span class="font-mono text-gray-300 pl-3">
+            <span class="font-mono text-gray-500 dark:text-gray-300 pl-6">
               Help
             </span>
           </div>

@@ -20,7 +20,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def sidebar(assigns) do
     ~H"""
-    <div class="w-10 bg-gray-900 text-white flex flex-col items-center border-r border-gray-800">
+    <div class="w-10 bg-white dark:bg-gray-900 text-gray-800 dark:text-white flex flex-col items-center border-r border-gray-300 dark:border-gray-800">
       <div class="p-2 pt-3 text-center text-sm font-mono font-semibold [writing-mode:vertical-lr] bg-gradient-to-b from-blue-500 to-purple-500 text-transparent bg-clip-text">
         PgSiphon
       </div>
@@ -57,7 +57,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def topbar(assigns) do
     ~H"""
-    <div class="w-full h-10 bg-gray-900 text-gray-800 flex border-b border-gray-800">
+    <div class="w-full h-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 flex border-b border-gray-300 dark:border-gray-800">
       <div class="flex-1 flex items-center justify-start">
         <div class="pl-4 p-2 text-center text-xs font-mono">
           <%= render_slot(@left_slot) %>
@@ -97,10 +97,10 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
   def two_columns(assigns) do
     ~H"""
     <div class="flex flex-col md:flex-row h-full">
-      <div class="w-full md:w-1/3 md:max-w-lg bg-gray-900 text-gray-200 p-3">
+      <div class="w-full md:w-1/3 md:max-w-lg bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 p-3">
         <%= render_slot(@left_section) %>
       </div>
-      <div class="w-full md:w-2/3 bg-gray-800/30 p-3 flex-grow">
+      <div class="w-full md:w-2/3 bg-gray-50/80 dark:bg-gray-800/30 p-3 flex-grow">
         <%= render_slot(@right_section) %>
       </div>
     </div>
@@ -144,8 +144,8 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def accordion_entry(assigns) do
     ~H"""
-    <div class="border border-gray-700 mb-2">
-      <button class="accordion-header w-full text-left p-2 bg-gray-800 text-gray-200 hover:bg-gray-700 font-mono text-xs flex justify-between items-center">
+    <div class="border border-gray-300 dark:border-gray-700 mb-2">
+      <button class="accordion-header w-full text-left p-2 bg-gray-200/50 text-gray-800 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 font-mono text-xs flex justify-between items-center">
         <div class="flex items-center">
           <Heroicons.icon name="ellipsis-vertical" type="mini" class="h-3 w-3" />
           <span class="ml-2">
@@ -163,7 +163,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
           </path>
         </svg>
       </button>
-      <div class={"accordion-content bg-gray-900 text-gray-300 font-mono text-sm #{if @open, do: "open", else: ""}"}>
+      <div class={"accordion-content bg-white text-gray-700 dark:bg-gray-900 dark:text-gray-300 font-mono text-sm #{if @open, do: "open", else: ""}"}>
         <div class="p-2">
           <%= render_slot(@inner_block) %>
         </div>
@@ -195,8 +195,8 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def kvp_container(assigns) do
     ~H"""
-    <div class="bg-gray-900 p-2 shadow-md mb-2">
-      <h3 class="text-gray-300 text-sm mb-2" title={@tooltip}><%= @title %></h3>
+    <div class="p-2 mb-2">
+      <h3 class="text-gray-700 dark:text-gray-300 text-sm mb-2" title={@tooltip}><%= @title %></h3>
       <%= render_slot(@inner_block) %>
     </div>
     """
@@ -219,8 +219,8 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
   def kvp_entry(assigns) do
     ~H"""
     <div class="flex justify-between items-center mb-2">
-      <span class="text-gray-400 text-xs"><%= render_slot(@key) %></span>
-      <span class="text-gray-300"><%= render_slot(@value) %></span>
+      <span class="text-gray-500 text-xs"><%= render_slot(@key) %></span>
+      <span class="text-gray-600"><%= render_slot(@value) %></span>
     </div>
     """
   end
@@ -231,15 +231,15 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def internal_header(assigns) do
     ~H"""
-    <section class="flex bg-gray-900 border border-gray-700 rounded-sm">
+    <section class="flex bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-sm">
       <div class="w-full mx-auto">
-        <div class="relative overflow-hidden bg-gray-800 rounded-sm">
+        <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-sm">
           <div class="flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
             <div>
-              <h4 class="mr-3 font-semibold text-gray-200">
+              <h4 class="mr-3 font-semibold text-gray-800 dark:text-gray-200">
                 <%= render_slot(@title) %>
               </h4>
-              <p class="text-gray-400 text-xs">
+              <p class="text-gray-600 dark:text-gray-400 text-xs">
                 <%= render_slot(@sub_title) %>
               </p>
             </div>
@@ -261,13 +261,13 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def empty_state(assigns) do
     ~H"""
-    <div class="flex flex-col items-center justify-center text-gray-400 mt-4 p-16 bg-transparent rounded font-mono">
+    <div class="flex flex-col items-center justify-center text-gray-600 dark:text-gray-400 mt-4 p-16 bg-transparent rounded font-mono">
       <div class="flex flex-col items-center justify-center">
         <Heroicons.icon name={@icon_name} type="outline" class="h-20 w-20 mb-4 text-gray-500" />
-        <p class={"mb-2 font-semibold text-gray-300 #{@text_size}"}>
+        <p class={"mb-2 font-semibold text-gray-700 dark:text-gray-300 #{@text_size}"}>
           <%= @alert_message %>
         </p>
-        <p class="mb-4 text-xs text-gray-300">
+        <p class="mb-4 text-xs text-gray-700 dark:text-gray-300">
           <%= render_slot(@message) %>
         </p>
         <%= render_slot(@action) %>
@@ -297,13 +297,16 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def dashboard_card(assigns) do
     ~H"""
-    <div class={["bg-gray-800 shadow-md rounded-sm border border-gray-700", @class]}>
-      <div class="bg-gray-700 px-4 py-2 rounded-t-sm">
-        <h2 class="text-xs text-gray-400 font-mono">
+    <div class={[
+      "bg-white dark:bg-gray-800 shadow-md rounded-sm border border-gray-300 dark:border-gray-700",
+      @class
+    ]}>
+      <div class="bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-t-sm">
+        <h2 class="text-xs text-gray-700 dark:text-gray-400 font-mono">
           <%= @title %>
         </h2>
       </div>
-      <div class="bg-gray-800 p-4 rounded-b-lg">
+      <div class="bg-white dark:bg-gray-800 p-4 rounded-b-lg">
         <%= render_slot(@inner_block) %>
       </div>
     </div>
@@ -316,7 +319,7 @@ defmodule PgSiphonManagementWeb.LayoutComponents do
 
   def pagination_text(assigns) do
     ~H"""
-    <div class="italic font-mono text-xs text-gray-300">
+    <div class="italic font-mono text-xs text-gray-700 dark:text-gray-300">
       Showing <%= @start_page %> to <%= @end_page %> of <%= @total_count %> results
     </div>
     """

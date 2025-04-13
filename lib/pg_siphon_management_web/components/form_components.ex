@@ -9,7 +9,7 @@ defmodule PgSiphonManagementWeb.FormComponents do
     ~H"""
     <input
       type={@type}
-      class="bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+      class="bg-white dark:bg-transparent border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
       placeholder={@placeholder}
       value={@value}
     />
@@ -20,7 +20,7 @@ defmodule PgSiphonManagementWeb.FormComponents do
 
   def select(assigns) do
     ~H"""
-    <select class="bg-transparent border border-gray-600 text-white placeholder-gray-500 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+    <select class="bg-white dark:bg-transparent border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
       <%= for {value, label} <- @options do %>
         <option value={value}><%= label %></option>
       <% end %>
