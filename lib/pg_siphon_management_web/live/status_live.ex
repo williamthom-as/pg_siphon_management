@@ -32,8 +32,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
       |> assign(
         accordion_open: %{
           "monitoring_settings" => true,
-          "active_connections" => false,
-          "message_flow" => false
+          "active_connections" => false
         }
       )
       |> assign(page_title: "Proxy")
@@ -144,47 +143,6 @@ defmodule PgSiphonManagementWeb.StatusLive do
               </div>
             </.kvp_container>
           </.accordion_entry>
-          <.accordion_entry title="Message Flow" open={@accordion_open["message_flow"]}>
-            <.kvp_container title="Status">
-              <.kvp_entry>
-                <:key>Active Logging:</:key>
-                <:value>
-                  <%= if @active_logging do %>
-                    <.badge colour="green">
-                      <span class="font-mono text-xs">Active</span>
-                    </.badge>
-                  <% else %>
-                    <.badge colour="red">
-                      <span class="font-mono text-xs">Paused</span>
-                    </.badge>
-                  <% end %>
-                </:value>
-              </.kvp_entry>
-              <div class="flex space-x-2 mt-4">
-                <%= if @active_logging do %>
-                  <div class="text-gray-500 text-xs my-2">
-                    This option will pause the message flow, but not the proxy. This is useful if you are inundated with messages.
-                  </div>
-                  <button
-                    phx-click="stop_active_logging"
-                    class="border border-indigo-500 text-indigo-500 hover:bg-indigo-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs"
-                  >
-                    Pause Message Flow
-                  </button>
-                <% else %>
-                  <div class="text-gray-500 text-xs my-2">
-                    This option will restart the message flow, you will see it start to log (and record) live.
-                  </div>
-                  <button
-                    phx-click="start_active_logging"
-                    class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-semibold py-1 px-2 rounded w-full text-xs"
-                  >
-                    Start Message Flow
-                  </button>
-                <% end %>
-              </div>
-            </.kvp_container>
-          </.accordion_entry>
           <.accordion_entry title="Record Session">
             <.live_component module={ExporterComponent} id={:exporter} />
           </.accordion_entry>
@@ -201,7 +159,26 @@ defmodule PgSiphonManagementWeb.StatusLive do
         <%!-- Move this to live component later  --%>
         <div class="mx-auto border border-gray-300 dark:border-gray-700">
           <div class="bg-gray-200/50 dark:bg-gray-800 rounded-t-sm px-4 py-2 flex items-center justify-between">
-            <div class="text-gray-600 dark:text-gray-400 text-xs font-mono"></div>
+            <div class="text-gray-600 dark:text-gray-400 text-xs font-mono">
+              <%!-- Add pause button --%>
+              <%= if @active_logging do %>
+                <button
+                  phx-click="stop_active_logging"
+                  class="border border-indigo-500 text-indigo-500 hover:bg-indigo-500 hover:text-white py-1 px-2 rounded w-full text-xs transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <Heroicons.icon name="pause" type="outline" class="h-4 w-4" />
+                  <span>Pause Message Flow</span>
+                </button>
+              <% else %>
+                <button
+                  phx-click="start_active_logging"
+                  class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white py-1 px-2 rounded w-full text-xs transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <Heroicons.icon name="play" type="outline" class="h-4 w-4" />
+                  <span>Start Message Flow</span>
+                </button>
+              <% end %>
+            </div>
             <span class="text-gray-600 dark:text-gray-400 text-xs font-mono">
               Logging:
               <%= if Enum.empty?(@filter_message_types) do %>
@@ -215,7 +192,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
           <div
             id="messages-window"
             phx-update="stream"
-            class="bg-gray-50 dark:bg-black text-gray-800 dark:text-white p-4 rounded-b-sm min-h-96 overflow-y-auto font-mono text-xs flex-grow max-h-[calc(100vh-100px)]"
+            class="bg-white dark:bg-black text-gray-800 dark:text-white p-4 rounded-b-sm min-h-96 overflow-y-auto font-mono text-xs flex-grow max-h-[calc(100vh-100px)]"
             phx-hook="ScrollToBottom"
           >
             <div :for={{id, message} <- @streams.messages} id={id} class="mb-2">
@@ -276,11 +253,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
 
     {:noreply,
      assign(socket,
-       active_logging: true,
-       accordion_open: %{
-         socket.assigns.accordion_open
-         | "message_flow" => true
-       }
+       active_logging: true
      )}
   end
 
@@ -289,11 +262,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
 
     {:noreply,
      assign(socket,
-       active_logging: false,
-       accordion_open: %{
-         socket.assigns.accordion_open
-         | "message_flow" => true
-       }
+       active_logging: false
      )}
   end
 

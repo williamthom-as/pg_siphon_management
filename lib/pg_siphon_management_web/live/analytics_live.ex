@@ -341,8 +341,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
       case {recording, selected_file} do
         {rec, selec} when is_nil(rec) or is_nil(selec) ->
           {
-            "bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-700",
-            "hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+            "bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-700 dark:text-gray-300 text-gray-600",
+            "hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-00 dark:text-gray-400"
           }
 
         {rec, selec} when rec.file_name == selec.file_name ->
@@ -353,8 +353,8 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
 
         _ ->
           {
-            "bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-700",
-            "hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+            "bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-700 dark:text-gray-300 text-gray-600",
+            "hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
           }
       end
 
@@ -376,7 +376,9 @@ defmodule PgSiphonManagementWeb.AnalyticsLive do
           class="flex-1 p-3 whitespace-nowrap font-mono text-xs"
         >
           <div>
-            <span class="font-semibold"><%= @recording.file_name %></span>
+            <span class="font-semibold">
+              <%= @recording.file_name %>
+            </span>
             <div class={"#{@text_classes} mt-2"}>
               <%= Timex.format!(@recording.creation_time, "{YYYY}-{0M}-{0D} {h24}:{m}:{s}") %>
             </div>
