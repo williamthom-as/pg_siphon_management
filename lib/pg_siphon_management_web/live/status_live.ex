@@ -42,30 +42,6 @@ defmodule PgSiphonManagementWeb.StatusLive do
 
   def render(assigns) do
     ~H"""
-    <%= if @file_recording do %>
-      <div class="p-3">
-        <.alert_bar type="danger">
-          <div class="flex flex-row justify-start items-center space-x-4">
-            <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
-            <span class="font-mono text-xs">
-              Recording in progress...
-            </span>
-          </div>
-        </.alert_bar>
-      </div>
-    <% end %>
-    <%= if @active_logging == false do %>
-      <div class="p-3">
-        <.alert_bar type="info">
-          <div class="flex flex-row justify-start items-center space-x-4">
-            <Heroicons.icon name="pause" type="outline" class="h-6 w-6" />
-            <span class="font-mono text-xs">
-              Active logging is paused, messages will not be shown or recorded.
-            </span>
-          </div>
-        </.alert_bar>
-      </div>
-    <% end %>
     <.two_columns>
       <:left_section>
         <.accordion_container id="accordion-status-page">
@@ -156,28 +132,58 @@ defmodule PgSiphonManagementWeb.StatusLive do
         </.accordion_container>
       </:left_section>
       <:right_section>
-        <%!-- Move this to live component later  --%>
+        <%= if @file_recording do %>
+          <div class="pb-3">
+            <.alert_bar type="danger">
+              <div class="flex flex-row justify-start items-center space-x-4">
+                <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
+                <span class="font-mono text-xs">
+                  Recording in progress...
+                </span>
+              </div>
+            </.alert_bar>
+          </div>
+        <% end %>
+        <%= if @active_logging == false do %>
+          <div class="pb-3">
+            <.alert_bar type="info">
+              <div class="flex flex-row justify-start items-center space-x-4">
+                <Heroicons.icon name="pause" type="outline" class="h-6 w-6" />
+                <span class="font-mono text-xs">
+                  Active logging is paused, messages will not be shown or recorded.
+                </span>
+              </div>
+            </.alert_bar>
+          </div>
+        <% end %>
+        <%!-- move this to live component later  --%>
         <div class="mx-auto border border-gray-300 dark:border-gray-700">
           <div class="bg-gray-200/50 dark:bg-gray-800 rounded-t-sm px-4 py-2 flex items-center justify-between">
-            <div class="text-gray-600 dark:text-gray-400 text-xs font-mono">
-              <%!-- Add pause button --%>
+            <div class="flex items-center space-x-2">
               <%= if @active_logging do %>
                 <button
                   phx-click="stop_active_logging"
-                  class="border border-indigo-500 text-indigo-500 hover:bg-indigo-500 hover:text-white py-1 px-2 rounded w-full text-xs transition-all duration-300 flex items-center justify-center gap-2"
+                  class="border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-indigo-500 hover:bg-indigo-500 hover:text-white py-1 px-2 rounded w-full text-xs transition-all duration-300 flex items-center justify-center gap-2 dark:hover:text-white"
                 >
                   <Heroicons.icon name="pause" type="outline" class="h-4 w-4" />
-                  <span>Pause Message Flow</span>
+                  <span>Pause</span>
                 </button>
               <% else %>
                 <button
                   phx-click="start_active_logging"
-                  class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white py-1 px-2 rounded w-full text-xs transition-all duration-300 flex items-center justify-center gap-2"
+                  class="border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-blue-500 hover:bg-blue-500 hover:text-white py-1 px-2 rounded w-full text-xs transition-all duration-300 flex items-center justify-center gap-2 dark:hover:text-white"
                 >
                   <Heroicons.icon name="play" type="outline" class="h-4 w-4" />
-                  <span>Start Message Flow</span>
+                  <span>Start</span>
                 </button>
               <% end %>
+              <button
+                phx-click="clear_console"
+                class="border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400 py-1 px-2 rounded w-full text-xs transition-colors duration-300 flex items-center justify-center gap-2 hover:bg-red-500 hover:border-red-500 hover:text-white dark:hover:text-white"
+              >
+                <Heroicons.icon name="trash" type="outline" class="h-4 w-4" />
+                <span>Clear</span>
+              </button>
             </div>
             <span class="text-gray-600 dark:text-gray-400 text-xs font-mono">
               Logging:
@@ -273,6 +279,15 @@ defmodule PgSiphonManagementWeb.StatusLive do
 
   def handle_event("toggle_filter_message_type", %{"key" => key}, socket) do
     PgSiphon.MonitoringServer.remove_filter_type(key)
+    {:noreply, socket}
+  end
+
+  def handle_event("clear_console", _params, socket) do
+    socket =
+      socket
+      |> stream(:messages, [], reset: true)
+      |> assign(counter: 0)
+
     {:noreply, socket}
   end
 
