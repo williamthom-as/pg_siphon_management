@@ -163,7 +163,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
               <%= if @active_logging do %>
                 <button
                   phx-click="stop_active_logging"
-                  class="border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-indigo-500 hover:bg-indigo-500 hover:text-white py-1 px-2 rounded w-full text-xs transition-all duration-300 flex items-center justify-center gap-2 dark:hover:text-white"
+                  class="border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-500 hover:text-white py-1 px-2 rounded w-full text-xs transition-all duration-300 flex items-center justify-center gap-2 dark:hover:text-white"
                 >
                   <Heroicons.icon name="pause" type="outline" class="h-4 w-4" />
                   <span>Pause</span>
@@ -171,7 +171,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
               <% else %>
                 <button
                   phx-click="start_active_logging"
-                  class="border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-blue-500 hover:bg-blue-500 hover:text-white py-1 px-2 rounded w-full text-xs transition-all duration-300 flex items-center justify-center gap-2 dark:hover:text-white"
+                  class="border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-500 hover:text-white py-1 px-2 rounded w-full text-xs transition-all duration-300 flex items-center justify-center gap-2 dark:hover:text-white"
                 >
                   <Heroicons.icon name="play" type="outline" class="h-4 w-4" />
                   <span>Start</span>
@@ -179,7 +179,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
               <% end %>
               <button
                 phx-click="clear_console"
-                class="border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400 py-1 px-2 rounded w-full text-xs transition-colors duration-300 flex items-center justify-center gap-2 hover:bg-red-500 hover:border-red-500 hover:text-white dark:hover:text-white"
+                class="border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400 py-1 px-2 rounded w-full text-xs transition-colors duration-300 flex items-center justify-center gap-2 dark:hover:border-red-500 hover:bg-red-500 hover:border-red-500 hover:text-white dark:hover:text-white"
               >
                 <Heroicons.icon name="trash" type="outline" class="h-4 w-4" />
                 <span>Clear</span>
@@ -198,7 +198,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
           <div
             id="messages-window"
             phx-update="stream"
-            class="bg-white dark:bg-black text-gray-800 dark:text-white p-4 rounded-b-sm min-h-96 overflow-y-auto font-mono text-xs flex-grow max-h-[calc(100vh-100px)]"
+            class="bg-white dark:bg-black text-gray-800 dark:text-white p-4 rounded-b-sm min-h-96 overflow-y-auto font-mono text-xs flex-grow max-h-[calc(100vh-240px)]"
             phx-hook="ScrollToBottom"
           >
             <div :for={{id, message} <- @streams.messages} id={id} class="mb-2">
@@ -288,7 +288,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
       |> stream(:messages, [], reset: true)
       |> assign(counter: 0)
 
-    {:noreply, socket}
+    {:noreply, put_flash(socket, :info, "Console has been cleared")}
   end
 
   def handle_info(:refresh_connections, socket) do
