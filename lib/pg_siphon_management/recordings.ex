@@ -37,9 +37,9 @@ defmodule PgSiphonManagement.Recordings do
         size: stat.size
       }
     end)
+    |> Enum.sort_by(& &1.creation_time, :desc)
     |> Enum.drop(offset)
     |> Enum.take(max)
-    |> Enum.sort_by(& &1.creation_time, :desc)
   end
 
   def get_recording_total_count() do
