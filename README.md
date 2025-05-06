@@ -12,10 +12,10 @@ It can be used to:
 Please don't use in production environments!
 
 PgSiphon has:
-- a very small overhead on application performance,
+- a very, very small overhead on application performance,
 - requires only an application configuration change to integrate,
-- observes **all** traffic, but only records on demand.
-- allows different message formats to be included/ignored for analysis.
+- observes **all** traffic, but only records on demand,
+- and allows different message formats to be included/ignored for analysis.
 
 ## Screenshots
 
