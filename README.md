@@ -9,28 +9,34 @@ It can be used to:
 - compare performance and impact on database activity before/after refactoring.
 - verify that what you *think* should be happening, is *actually* happening [especially useful for ORMs].
 
-PgSiphon should not be used in production environments, but rather as a development tool for debugging/finding performance improvements.
+Please don't use in production environments!
 
 PgSiphon has:
 - a very small overhead on application performance,
-- requires only application configuration change,
+- requires only an application configuration change to integrate,
 - observes **all** traffic, but only records on demand.
 - allows different message formats to be included/ignored for analysis.
 
 ## Screenshots
 
 <p align="center" style="margin-bottom: 2rem">
-  <img src="docs/img/proxy.gif" alt="PgSiphon UI" width="600px">
+  <img src="docs/img/proxy.gif" alt="PgSiphon UI">
   <br/>
-  <em style="font-size: 0.9rem;">Proxy activity between app and database.</em>
+  <em style="font-size: 0.9rem;">Watch data travel live between application and database.</em>
 </p>
 
-<p align="center">
-  <img src="docs/img/analysis.gif" alt="PgSiphon UI" width="600px">
+
+<p align="center" style="margin-bottom: 2rem">
+  <img src="docs/img/trace.png" alt="PgSiphon UI">
   <br/>
-  <em style="font-size: 0.9rem;">Query analysis.</em>
+  <em style="font-size: 0.9rem;">Tracing app behaviour to database activity.</em>
 </p>
 
+<p align="center" style="margin-bottom: 2rem">
+  <img src="docs/img/message_types.png" alt="PgSiphon Message Types">
+  <br/>
+  <em style="font-size: 0.9rem;">Only track the messages you are interested in.</em>
+</p>
 
 ## Usage
 
