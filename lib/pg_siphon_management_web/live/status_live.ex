@@ -119,15 +119,15 @@ defmodule PgSiphonManagementWeb.StatusLive do
               </div>
             </.kvp_container>
           </.accordion_entry>
-          <.accordion_entry title="Record Session">
-            <.live_component module={ExporterComponent} id={:exporter} />
-          </.accordion_entry>
           <.accordion_entry title="Active Connections" open={@accordion_open["active_connections"]}>
             <.live_component
               module={ActiveConnectionsComponent}
               id={:active_conns}
               active_connections={@active_connections}
             />
+          </.accordion_entry>
+          <.accordion_entry title="Record Session">
+            <.live_component module={ExporterComponent} id={:exporter} />
           </.accordion_entry>
         </.accordion_container>
       </:left_section>
