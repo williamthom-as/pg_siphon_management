@@ -158,7 +158,7 @@ defmodule PgSiphonManagementWeb.StatusLive do
         <% end %>
         <%!-- move this to live component later  --%>
         <div class="mx-auto border border-gray-300 dark:border-gray-700">
-          <div class="bg-gray-200/50 dark:bg-gray-800 rounded-t-sm px-4 py-2 flex items-center justify-between">
+          <div class="bg-gray-200/50 dark:bg-gray-800 rounded-t-sm p-2 flex items-center justify-between">
             <div class="flex items-center space-x-2">
               <%= if @active_logging do %>
                 <button
