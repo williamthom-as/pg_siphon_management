@@ -222,18 +222,22 @@ defmodule PgSiphonManagementWeb.CoreComponents do
   """
   attr :type, :string, default: nil
   attr :class, :string, default: nil
+  attr :color, :string, default: "blue", required: false
   attr :rest, :global, include: ~w(disabled form name value)
 
   slot :inner_block, required: true
 
+  # tw includes
+  # border-rose-500 dark:border-rose-400 text-rose-600 dark:text-rose-400 hover:bg-rose-500 dark:hover:bg-rose-600
+  # border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-500 dark:hover:bg-blue-600
   def button(assigns) do
     ~H"""
     <button
       type={@type}
       class={[
         "phx-submit-loading:opacity-75 rounded-lg py-1 px-2",
-        "bg-white dark:bg-zinc-900 border border-blue-500 dark:border-blue-400",
-        "text-blue-600 dark:text-blue-400 hover:bg-blue-500 dark:hover:bg-blue-600",
+        "bg-white dark:bg-zinc-900 border border-#{@color}-500 dark:border-#{@color}-400",
+        "text-#{@color}-600 dark:text-#{@color}-400 hover:bg-#{@color}-500 dark:hover:bg-#{@color}-600",
         "hover:text-white dark:hover:text-white",
         "text-xs font-semibold leading-6 active:text-white/80",
         @class
