@@ -132,18 +132,6 @@ defmodule PgSiphonManagementWeb.StatusLive do
         </.accordion_container>
       </:left_section>
       <:right_section>
-        <%= if @file_recording do %>
-          <div class="pb-3">
-            <.alert_bar type="danger">
-              <div class="flex flex-row justify-start items-center space-x-4">
-                <Heroicons.icon name="arrow-path" type="outline" class="h-6 w-6 animate-spin" />
-                <span class="font-mono text-xs">
-                  Recording in progress...
-                </span>
-              </div>
-            </.alert_bar>
-          </div>
-        <% end %>
         <%= if @active_logging == false do %>
           <div class="pb-3">
             <.alert_bar type="info">
@@ -157,8 +145,8 @@ defmodule PgSiphonManagementWeb.StatusLive do
           </div>
         <% end %>
         <%!-- move this to live component later  --%>
-        <div class="mx-auto border border-gray-300 dark:border-gray-700">
-          <div class="bg-gray-200/50 dark:bg-gray-800 rounded-t-sm p-2 flex items-center justify-between">
+        <div class={"mx-auto border #{if @file_recording, do: "border-rose-900", else: "border-gray-300 dark:border-gray-700"}"}>
+          <div class={"#{if @file_recording, do: "bg-rose-100 dark:bg-rose-900/30", else: "bg-gray-200/50 dark:bg-gray-800 "} rounded-t-sm p-2 flex items-center justify-between"}>
             <div class="flex items-center space-x-2">
               <%= if @active_logging do %>
                 <button
@@ -185,15 +173,23 @@ defmodule PgSiphonManagementWeb.StatusLive do
                 <span>Clear</span>
               </button>
             </div>
-            <span class="text-gray-600 dark:text-gray-400 text-xs font-mono">
-              Logging:
-              <%= if Enum.empty?(@filter_message_types) do %>
-                All
-              <% else %>
-                <%= Enum.join(@filter_message_types, ", ") %>
+            <div class="flex items-center">
+              <%= if @file_recording do %>
+                <div class="bg-red-500 text-white py-1 px-2 rounded text-xs flex items-center justify-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                  <span>Recording</span>
+                </div>
               <% end %>
-              [<%= @counter %>]
-            </span>
+              <div class="ml-4 text-gray-600 dark:text-gray-400 text-xs font-mono">
+                Logging:
+                <%= if Enum.empty?(@filter_message_types) do %>
+                  All
+                <% else %>
+                  <%= Enum.join(@filter_message_types, ", ") %>
+                <% end %>
+                [<%= @counter %>]
+              </div>
+            </div>
           </div>
           <div
             id="messages-window"
@@ -289,6 +285,19 @@ defmodule PgSiphonManagementWeb.StatusLive do
       |> assign(counter: 0)
 
     {:noreply, put_flash(socket, :info, "Console has been cleared")}
+  end
+
+  def handle_event("stop_recording", _, socket) do
+    {_status, _msg} = RecordingServer.stop()
+
+    %{recording: file_recording, file_name: file_name} =
+      :sys.get_state(:recording_server)
+
+    # Notify pubsub to remove banner
+
+    {:noreply,
+     socket
+     |> assign(file_recording: file_recording, file_name: file_name)}
   end
 
   def handle_info(:refresh_connections, socket) do
